@@ -115,7 +115,7 @@ Cityscapes fine annotations [Cordts 2016]: 2 975 train / 500 val images, 19 eval
 
 The single pre-registered primary endpoint is the **dataset-level official mIoU, arm G vs its paired reference B** (paired = same architecture, recipe, budget, augmentation, seeds — only the loss differs). Test: **paired image-bootstrap** over the 500 holdout images — positions resampled with replacement, **B = 10 000** replicates, bootstrap seed **20260618**, the three seeds averaged *within each replicate*, 95 % percentile CI, two-sided p = 2·min(frac Δ ≤ 0, frac Δ ≥ 0). The primary family is the single pair, so Holm = p.
 
-Secondary/exploratory families, each with its Holm correction declared where reported: per-class IoU (19-class family per arm pair), business metrics (Holm(2) over this paper's two pairs G-vs-B and G-vs-control), per-class fragmentation (19-class family), 13-arm mIoU context (the program's 15-pair family, computed over the master table `results/moe_v3_cs/p314/master_table.json`).
+Secondary/exploratory families, each with its Holm correction declared where reported: per-class IoU (19-class family per arm pair), business metrics (Holm(2) over this paper's two pairs G-vs-B and G-vs-control), per-class fragmentation (19-class family), 13-arm mIoU context (**two** families, both given side by side in §6.1: the 12-pair family of the master table `results/moe_v3_cs/p314/master_table.json` and the program's 15-pair exploratory family of `results/moe_v3_cs/metiers_experts/table_metiers_experts.json`).
 
 **Two significance criteria, never conflated.** *Holm-significant* (corrected p < 0.05 within the stated family) and *CI-excluding-zero* (raw 95 % CI) are reported **separately** everywhere — bold in tables marks Holm significance only, and the p / Holm columns carry the exact values. This distinction matters for this arm: e.g. truck +3.78 IoU vs B excludes zero but does not survive the 19-class Holm (0.460), while traffic light +0.98 survives (Holm < 0.001).
 
@@ -147,23 +147,27 @@ The second, independent GPU forward of the same checkpoints (business-metric reg
 
 **13-arm program context** (reference: MoE control, CE + Dice 80 epochs — *not* budget-paired with G; artifact `results/moe_v3_cs/p314/master_table.json`):
 
-| # | Arm | mIoU | Δ vs control | p | Holm (15 pairs) |
-|---|---|---|---|---|---|
-| 1 | D · CE+Kervadec EDT | 81.69 | +0.52 [+0.14 ; +0.91] | 0.0048 | 0.058 |
-| 2 | consensus D⊘B | 81.65 | +0.48 [+0.11 ; +0.87] | 0.0082 | 0.082 |
-| 3 | consensus Dp⊘B | 81.65 | +0.48 [+0.02 ; +0.96] | 0.0396 | 0.317 |
-| 4 | Dp · CE+SDT (distmap) | 81.64 | +0.47 [+0.04 ; +0.93] | 0.0312 | 0.281 |
-| 5 | MoE-V3-CS (4 experts) | 81.62 | +0.45 [+0.11 ; +0.82] | 0.0066 | 0.073 |
-| 6 | A · CE alone | 81.28 | +0.11 [−0.27 ; +0.52] | 0.5722 | 1.000 |
-| 7 | **G · CE+Dice+Blob (this paper)** | **81.26** | **+0.10 [−0.28 ; +0.47]** | **0.6552** | **1.000** |
-| 8 | consensus C⊘B | 81.24 | +0.07 [−0.34 ; +0.47] | 0.7758 | 1.000 |
-| 9 | C · CE+Dice+Kervadec EDT | 81.23 | +0.06 [−0.34 ; +0.47] | 0.8096 | 1.000 |
-| 10 | B · CE+Dice (160 ep) | 81.09 | −0.08 [−0.45 ; +0.28] | 0.6748 | 1.000 |
-| 11 | consensus Cp⊘B | 81.01 | −0.15 [−0.52 ; +0.17] | 0.3498 | 1.000 |
-| 12 | Cp · CE+Dice+SDT | 80.89 | −0.28 [−0.60 ; +0.02] | 0.0628 | 0.440 |
-| — | control (ref, CE+Dice 80 ep) | 81.17 | — | — | — |
+| # | Arm | mIoU | Δ vs control | p | Holm (12-pair family) | Holm (15-pair family) |
+|---|---|---|---|---|---|---|
+| 1 | D · CE+Kervadec EDT | 81.69 | +0.52 [+0.14 ; +0.91] | 0.0048 | 0.058 | 0.075 |
+| 2 | consensus D⊘B | 81.65 | +0.48 [+0.11 ; +0.87] | 0.0082 | 0.082 | 0.107 |
+| 3 | consensus Dp⊘B | 81.65 | +0.48 [+0.02 ; +0.96] | 0.0396 | 0.317 | 0.414 |
+| 4 | Dp · CE+SDT (distmap) | 81.64 | +0.47 [+0.04 ; +0.93] | 0.0312 | 0.281 | 0.396 |
+| 5 | MoE-V3-CS (4 experts) | 81.62 | +0.45 [+0.11 ; +0.82] | 0.0066 | 0.073 | 0.092 |
+| 6 | A · CE alone | 81.28 | +0.11 [−0.27 ; +0.52] | 0.5722 | 1.000 | n.a. (a) |
+| 7 | **G · CE+Dice+Blob (this paper)** | **81.26** | **+0.10 [−0.28 ; +0.47]** | **0.6552** | **1.000** | **1.000** |
+| 8 | consensus C⊘B | 81.24 | +0.07 [−0.34 ; +0.47] | 0.7758 | 1.000 | 1.000 |
+| 9 | C · CE+Dice+Kervadec EDT | 81.23 | +0.06 [−0.34 ; +0.47] | 0.8096 | 1.000 | 1.000 |
+| 10 | B · CE+Dice (160 ep) | 81.09 | −0.08 [−0.45 ; +0.28] | 0.6748 | 1.000 | 1.000 |
+| 11 | consensus Cp⊘B | 81.01 | −0.15 [−0.52 ; +0.17] | 0.3498 | 1.000 | 1.000 |
+| 12 | Cp · CE+Dice+SDT | 80.89 | −0.28 [−0.60 ; +0.02] | 0.0628 | 0.440 | 0.618 |
+| — | control (ref, CE+Dice 80 ep) | 81.17 | — | — | — | — |
 
-G ranks **7th of 13** by amplitude. No arm passes Holm 0.05 on the 15-pair exploratory family — stated as-is: on mIoU, the conclusions of this program rest on **amplitudes and their CIs**, not on post-Holm significance.
+(a) A is outside the 15-pair family (partial coverage; `annexe_couverture_partielle` of P3.17 = ['A']), so no Holm value exists for it there.
+
+**Two distinct multiplicity families, both reported.** The *12-pair* family is the master table itself (each of the 12 arms against the control, `results/moe_v3_cs/p314/master_table.json`). The *15-pair* family is the program's exploratory family, which adds the 4 fusion-versus-expert comparisons (`results/moe_v3_cs/metiers_experts/table_metiers_experts.json`, carried over by P3.17). Family sizes are computed from the artifacts and each Holm value is recomputed from the raw p-values and compared against the stored one (blocking check, `papers/paper4/tables/SANITY.md`).
+
+G ranks **7th of 13** by amplitude (the control, Δ = 0, ranks 10th). **No arm passes Holm 0.05 in either family** — best 0.0576 over 12 pairs, 0.0750 over 15 pairs — stated as-is: on mIoU, the conclusions of this program rest on **amplitudes and their CIs**, not on post-Holm significance.
 
 ### 6.2 Per-class IoU: thin-object coverage bought
 
@@ -302,7 +306,7 @@ Nothing here contradicts the published medical result: under the region-based si
 1. **The primary endpoint is null.** This is a negative-result paper by design; the contribution is the diagnostic, the port and the usage — not a performance claim.
 2. **β not swept.** β = 0.5 fixed at Kofler's default (α:β = 2:1); no λ sweep, same fixed-budget stance as the program's companion papers. The trade-off could move with β; that surface is not measured.
 3. **Holdout `first:500`.** A pre-specified subset of val, identical for all 13 arms and fixed before training — but not the official leaderboard, which was not submitted to.
-4. **Holm on the 15-pair exploratory family leaves no arm significant on mIoU** (best raw p = 0.0048 → Holm 0.058). Program-wide conclusions on mIoU rest on amplitudes and CIs, stated as such.
+4. **Holm leaves no arm significant on mIoU in either multiplicity family** (best raw p = 0.0048 → Holm 0.058 over the 12-pair master-table family, 0.075 over the program's 15-pair exploratory family). Program-wide conclusions on mIoU rest on amplitudes and CIs, stated as such.
 5. **Budget mismatch with the 13-arm context.** G trains 160 epochs; the context control 80. The paired comparison of G is B (160 epochs); the control pair is always labelled *context*.
 6. **Mechanism is a measurement-grounded hypothesis.** The fragmentation decomposition is new and blocking-checked, but no gradient-level or per-layer analysis is performed; §7.1 remains an interpretation.
 7. **n = 3 seeds.** Sub-0.5-pt effects are underpowered at the seed level; the primary inference is the 500-image paired bootstrap, which probes evaluation-set sampling, not seed variance.

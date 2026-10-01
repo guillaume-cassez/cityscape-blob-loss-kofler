@@ -115,7 +115,7 @@ Annotations fines Cityscapes [Cordts 2016] : 2 975 images train / 500 val, 19 cl
 
 L'unique endpoint primaire pré-enregistré est la **mIoU officielle dataset-level, bras G vs sa référence appariée B** (apparié = même architecture, recette, budget, augmentation, seeds — seule la loss diffère). Test : **bootstrap apparié par image** sur les 500 images du holdout — positions re-tirées avec remplacement, **B = 10 000** réplicats, seed de bootstrap **20260618**, les trois seeds moyennés *dans chaque réplicat*, IC95 en percentiles, p bilatéral = 2·min(frac Δ ≤ 0, frac Δ ≥ 0). La famille primaire est la paire unique, donc Holm = p.
 
-Familles secondaires/exploratoires, chacune avec sa correction de Holm déclarée là où elle est rapportée : IoU par classe (famille 19 classes par paire de bras), métriques métier (Holm(2) sur les deux paires de ce papier G-vs-B et G-vs-contrôle), fragmentation par classe (famille 19 classes), contexte mIoU 13 bras (la famille 15 paires du programme, calculée sur la table maîtresse `results/moe_v3_cs/p314/master_table.json`).
+Familles secondaires/exploratoires, chacune avec sa correction de Holm déclarée là où elle est rapportée : IoU par classe (famille 19 classes par paire de bras), métriques métier (Holm(2) sur les deux paires de ce papier G-vs-B et G-vs-contrôle), fragmentation par classe (famille 19 classes), contexte mIoU 13 bras (**deux** familles, données côte à côte en §6.1 : la famille 12 paires de la table maîtresse `results/moe_v3_cs/p314/master_table.json` et la famille exploratoire 15 paires du programme `results/moe_v3_cs/metiers_experts/table_metiers_experts.json`).
 
 **Deux critères de significativité, jamais confondus.** *Holm-significatif* (p corrigé < 0,05 dans la famille déclarée) et *IC-excluant-zéro* (IC95 brut) sont rapportés **séparément** partout — le gras dans les tables marque uniquement la significativité Holm, et les colonnes p / Holm portent les valeurs exactes. Cette distinction compte pour ce bras : par ex. truck +3,78 IoU vs B exclut 0 mais ne survit pas au Holm 19 classes (0,460), alors que traffic light +0,98 y survit (Holm < 0,001).
 
@@ -147,23 +147,27 @@ Le deuxième forward GPU indépendant des mêmes checkpoints (chemin de régén�
 
 **Contexte 13 bras du programme** (référence : contrôle du MoE, CE + Dice 80 époques — *non* apparié en budget avec G ; artefact `results/moe_v3_cs/p314/master_table.json`) :
 
-| # | Bras | mIoU | Δ vs contrôle | p | Holm (15 paires) |
-|---|---|---|---|---|---|
-| 1 | D · CE+Kervadec EDT | 81,69 | +0,52 [+0,14 ; +0,91] | 0,0048 | 0,058 |
-| 2 | consensus D⊘B | 81,65 | +0,48 [+0,11 ; +0,87] | 0,0082 | 0,082 |
-| 3 | consensus Dp⊘B | 81,65 | +0,48 [+0,02 ; +0,96] | 0,0396 | 0,317 |
-| 4 | Dp · CE+SDT (distmap) | 81,64 | +0,47 [+0,04 ; +0,93] | 0,0312 | 0,281 |
-| 5 | MoE-V3-CS (4 experts) | 81,62 | +0,45 [+0,11 ; +0,82] | 0,0066 | 0,073 |
-| 6 | A · CE seule | 81,28 | +0,11 [−0,27 ; +0,52] | 0,5722 | 1,000 |
-| 7 | **G · CE+Dice+Blob (ce papier)** | **81,26** | **+0,10 [−0,28 ; +0,47]** | **0,6552** | **1,000** |
-| 8 | consensus C⊘B | 81,24 | +0,07 [−0,34 ; +0,47] | 0,7758 | 1,000 |
-| 9 | C · CE+Dice+Kervadec EDT | 81,23 | +0,06 [−0,34 ; +0,47] | 0,8096 | 1,000 |
-| 10 | B · CE+Dice (160 ep) | 81,09 | −0,08 [−0,45 ; +0,28] | 0,6748 | 1,000 |
-| 11 | consensus Cp⊘B | 81,01 | −0,15 [−0,52 ; +0,17] | 0,3498 | 1,000 |
-| 12 | Cp · CE+Dice+SDT | 80,89 | −0,28 [−0,60 ; +0,02] | 0,0628 | 0,440 |
-| — | contrôle (réf, CE+Dice 80 ep) | 81,17 | — | — | — |
+| # | Bras | mIoU | Δ vs contrôle | p | Holm (famille 12 paires) | Holm (famille 15 paires) |
+|---|---|---|---|---|---|---|
+| 1 | D · CE+Kervadec EDT | 81,69 | +0,52 [+0,14 ; +0,91] | 0,0048 | 0,058 | 0,075 |
+| 2 | consensus D⊘B | 81,65 | +0,48 [+0,11 ; +0,87] | 0,0082 | 0,082 | 0,107 |
+| 3 | consensus Dp⊘B | 81,65 | +0,48 [+0,02 ; +0,96] | 0,0396 | 0,317 | 0,414 |
+| 4 | Dp · CE+SDT (distmap) | 81,64 | +0,47 [+0,04 ; +0,93] | 0,0312 | 0,281 | 0,396 |
+| 5 | MoE-V3-CS (4 experts) | 81,62 | +0,45 [+0,11 ; +0,82] | 0,0066 | 0,073 | 0,092 |
+| 6 | A · CE seule | 81,28 | +0,11 [−0,27 ; +0,52] | 0,5722 | 1,000 | n.c. (a) |
+| 7 | **G · CE+Dice+Blob (ce papier)** | **81,26** | **+0,10 [−0,28 ; +0,47]** | **0,6552** | **1,000** | **1,000** |
+| 8 | consensus C⊘B | 81,24 | +0,07 [−0,34 ; +0,47] | 0,7758 | 1,000 | 1,000 |
+| 9 | C · CE+Dice+Kervadec EDT | 81,23 | +0,06 [−0,34 ; +0,47] | 0,8096 | 1,000 | 1,000 |
+| 10 | B · CE+Dice (160 ep) | 81,09 | −0,08 [−0,45 ; +0,28] | 0,6748 | 1,000 | 1,000 |
+| 11 | consensus Cp⊘B | 81,01 | −0,15 [−0,52 ; +0,17] | 0,3498 | 1,000 | 1,000 |
+| 12 | Cp · CE+Dice+SDT | 80,89 | −0,28 [−0,60 ; +0,02] | 0,0628 | 0,440 | 0,618 |
+| — | contrôle (réf, CE+Dice 80 ep) | 81,17 | — | — | — | — |
 
-G se classe **7^e^ sur 13** par amplitude. Aucun bras ne passe Holm 0,05 sur la famille exploratoire 15 paires — écrit tel quel : sur la mIoU, les conclusions de ce programme reposent sur les **ampleurs et leurs IC**, pas sur la significativité post-Holm.
+(a) A est hors de la famille 15 paires (couverture partielle ; `annexe_couverture_partielle` de P3.17 = ['A']) : aucun Holm n'y est calculable pour ce bras.
+
+**Deux familles de multiplicité distinctes, toutes deux rapportées.** La famille *12 paires* est la table maîtresse elle-même (chacun des 12 bras contre le contrôle, `results/moe_v3_cs/p314/master_table.json`). La famille *15 paires* est la famille exploratoire du programme, qui y ajoute les 4 comparaisons fusion-contre-expert (`results/moe_v3_cs/metiers_experts/table_metiers_experts.json`, reprise par P3.17). Les tailles de famille sont calculées depuis les artefacts et chaque Holm est recomputé depuis les p bruts puis comparé à la valeur stockée (check bloquant, `papers/paper4/tables/SANITY.md`).
+
+G se classe **7^e^ sur 13** par amplitude (le contrôle, Δ = 0, se classe 10^e^). **Aucun bras ne passe Holm 0,05 dans aucune des deux familles** — meilleur 0,0576 sur 12 paires, 0,0750 sur 15 paires — écrit tel quel : sur la mIoU, les conclusions de ce programme reposent sur les **ampleurs et leurs IC**, pas sur la significativité post-Holm.
 
 ### 6.2 IoU par classe : la couverture des objets fins achetée
 
@@ -302,7 +306,7 @@ Rien ici ne contredit le résultat médical publié : sous la recette region-bas
 1. **Le primaire est nul.** C'est un papier à résultat négatif par conception ; la contribution est le diagnostic, le portage et l'usage — pas une revendication de performance.
 2. **β non balayé.** β = 0,5 fixé au défaut de Kofler (α:β = 2:1) ; aucun sweep de λ, même position à budget fixe que les papiers compagnons du programme. Le trade-off pourrait bouger avec β ; cette surface n'est pas mesurée.
 3. **Holdout `first:500`.** Un sous-ensemble pré-spécifié du val, identique pour les 13 bras et fixé avant entraînement — mais pas le leaderboard officiel, auquel aucune soumission n'a été faite.
-4. **Le Holm sur la famille exploratoire 15 paires ne laisse aucun bras significatif sur la mIoU** (meilleur p brut = 0,0048 → Holm 0,058). Les conclusions du programme sur la mIoU reposent sur les ampleurs et leurs IC, écrites comme telles.
+4. **Le Holm ne laisse aucun bras significatif sur la mIoU dans aucune des deux familles de multiplicité** (meilleur p brut = 0,0048 → Holm 0,058 sur la famille 12 paires de la table maîtresse, 0,075 sur la famille exploratoire 15 paires du programme). Les conclusions du programme sur la mIoU reposent sur les ampleurs et leurs IC, écrites comme telles.
 5. **Budget non apparié avec le contexte 13 bras.** G s'entraîne 160 époques ; le contrôle du contexte 80. La comparaison appariée de G est B (160 époques) ; la paire contrôle est toujours étiquetée *contexte*.
 6. **Le mécanisme est une hypothèse ancrée dans la mesure.** La décomposition de fragmentation est neuve et vérifiée par checks bloquants, mais aucune analyse au niveau du gradient ou par couche n'est effectuée ; la §7.1 reste une interprétation.
 7. **n = 3 seeds.** Les effets sous 0,5 pt sont sous-puissants au niveau seed ; l'inférence primaire est le bootstrap apparié sur 500 images, qui sonde l'échantillonnage du jeu d'évaluation, pas la variance de seed.

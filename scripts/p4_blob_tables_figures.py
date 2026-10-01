@@ -409,9 +409,54 @@ def t1_protocole_cout() -> tuple[str, dict]:
     return "\n".join(md) + "\n", data
 
 
+def familles_holm_miou() -> dict:
+    """Tailles et valeurs de Holm des DEUX familles de multiplicité du mIoU.
+
+    ERRATUM v1.1.0 (2026-10-01) : la colonne de contexte 13 bras était intitulée
+    « Holm (15 paires) » — en-tête CODÉ EN DUR — alors que ses valeurs venaient de la
+    famille **12 paires** de `p314/master_table.json` (mesuré : D 0,0576 = 12×0,0048,
+    MoE 0,0726 = 11×0,0066 ; la famille 15 paires de P3.16 donne 0,075 et 0,0924).
+    Piège 2 du JALON_P3.18.md : une étiquette écrite à la main finit par mentir.
+    Ici les tailles sont CALCULÉES depuis les artefacts, le Holm est RECOMPUTÉ depuis
+    les p bruts (sanity bloquante) et les deux familles sont montrées côte à côte.
+    """
+    p314 = json.loads(P314.read_text())
+    p316 = json.loads(P316_MET.read_text())
+    poly = json.loads(P317.read_text())
+    fam314 = {k: v["p_two_sided"] for k, v in p314["pairwise"].items()}
+    pw316 = p316["tables"]["mIoU"]["pairwise"]
+    fam316 = {k: v["p_two_sided"] for k, v in pw316.items()}
+    h314, h316 = holm(fam314), holm(fam316)
+    for k in fam314:
+        check(f"Holm P3.14 recomputé == stocké ({k})",
+              abs(h314[k] - p314["pairwise"][k]["p_holm"]) < 1e-12,
+              f"{h314[k]:.6g} vs {p314['pairwise'][k]['p_holm']:.6g}")
+    for k in fam316:
+        check(f"Holm P3.16 recomputé == stocké ({k})",
+              abs(h316[k] - pw316[k]["p_holm"]) < 1e-12,
+              f"{h316[k]:.6g} vs {pw316[k]['p_holm']:.6g}")
+    check("famille P3.14 = 12 paires (12 bras vs contrôle)", len(fam314) == 12,
+          f"len(pairwise) = {len(fam314)}")
+    check("famille P3.16 = 15 paires (12 vs contrôle + 3 fusion-vs-expert)",
+          len(fam316) == 15 and len(p316["pairs"]) == 15,
+          f"len(pairwise mIoU) = {len(fam316)}, len(pairs) = {len(p316['pairs'])}")
+    # La polyvalence (P3.17) doit citer la famille 15 paires, pas une autre.
+    for a in p314["arms"]:
+        if a == "controle" or f"{a}_vs_controle" not in pw316:
+            continue
+        check(f"Holm mIoU polyvalence == famille 15 paires ({a})",
+              abs(poly["p_holm"][a]["mIoU"] - h316[f"{a}_vs_controle"]) < 1e-9,
+              f"{poly['p_holm'][a]['mIoU']:.6g} vs {h316[f'{a}_vs_controle']:.6g}")
+    return {"n314": len(fam314), "n316": len(fam316), "h314": h314, "h316": h316,
+            "couverts_316": {k.replace("_vs_controle", "") for k in pw316},
+            "partiels": poly.get("annexe_couverture_partielle", []),
+            "meilleur314": min(h314.values()), "meilleur316": min(h316.values())}
+
+
 def t2_primaire(tables: dict) -> tuple[str, dict]:
     harness = json.loads(HARNESS.read_text())
     p314 = json.loads(P314.read_text())
+    fam = familles_holm_miou()
     m = tables["mIoU"]
     g = m["pairwise"]["G_vs_B"]
     pts = harness["bootstrap_miou"]["point"]
@@ -435,16 +480,44 @@ def t2_primaire(tables: dict) -> tuple[str, dict]:
     pw = p314["pairwise"]
     rows = sorted(((a, pw[f"{a}_vs_controle"]["delta"]) for a in p314["arms"] if a != "controle"),
                   key=lambda x: -x[1])
-    md += ["| # | Bras | mIoU | Δ vs contrôle | p | Holm (15 paires) |", "|---|---|---|---|---|---|"]
+    n314, n316 = fam["n314"], fam["n316"]
+    md += [f"| # | Bras | mIoU | Δ vs contrôle | p | Holm (famille {n314} paires, P3.14) | "
+           f"Holm (famille {n316} paires, P3.16) |", "|---|---|---|---|---|---|---|"]
     for i, (a, _d) in enumerate(rows, 1):
         e = pw[f"{a}_vs_controle"]
         star = " ← **G (ce papier)**" if a == "G" else ""
+        h16 = (f"{fam['h316'][f'{a}_vs_controle']:.3f}" if a in fam["couverts_316"] else "n.c. (a)")
         md.append(f"| {i} | {LABEL_BRAS.get(a, a)}{star} | {p314['point'][a]*100:.2f} | "
                   f"{e['delta']*100:+.2f} [{e['ci95'][0]*100:+.2f}, {e['ci95'][1]*100:+.2f}] | "
-                  f"{e['p_two_sided']:.4f} | {e['p_holm']:.3f} |")
-    md.append(f"| — | contrôle (réf) | {p314['point']['controle']*100:.2f} | — | — | — |")
+                  f"{e['p_two_sided']:.4f} | {e['p_holm']:.3f} | {h16} |")
+    md.append(f"| — | contrôle (réf) | {p314['point']['controle']*100:.2f} | — | — | — | — |")
     rang_G = [a for a, _ in rows].index("G") + 1
-    md += ["", f"Aucun bras ne passe Holm 0,05 sur la famille exploratoire 15 paires ; G est {rang_G}ᵉ/12 par amplitude (7ᵉ/13 contrôle inclus, table P3.14).",
+    # Rang contrôle inclus : le contrôle a Δ = 0 par définition, il se classe donc SOUS
+    # tout bras positif — le rang 13 bras se CALCULE en l'insérant, il ne se déduit pas
+    # de rang_G (v1.1.0 : la déduction rang_G+1 donnait 8ᵉ au lieu de 7ᵉ).
+    rows_13 = sorted(list(rows) + [("controle", 0.0)], key=lambda x: -x[1])
+    rang_G_13 = [a for a, _ in rows_13].index("G") + 1
+    rang_ctl_13 = [a for a, _ in rows_13].index("controle") + 1
+    check("classement 13 bras trié par Δ décroissant",
+          all(rows_13[i][1] >= rows_13[i + 1][1] for i in range(len(rows_13) - 1)),
+          f"{len(rows_13)} bras, Δ de {rows_13[0][1]*100:+.2f} à {rows_13[-1][1]*100:+.2f} pt")
+    check("rang G contrôle inclus == rang G décalé de la position du contrôle",
+          rang_G_13 == rang_G + (1 if rang_ctl_13 <= rang_G else 0),
+          f"rang_G={rang_G}/{len(rows)}, rang_G_13={rang_G_13}/{len(rows_13)}, "
+          f"rang_contrôle={rang_ctl_13}")
+    md += ["", f"(a) A est hors de la famille {n316} paires (couverture partielle, "
+           f"`annexe_couverture_partielle` de P3.17 = {fam['partiels']}) : son Holm n'y est pas calculable.",
+           "", f"**Aucun bras ne passe Holm 0,05 dans AUCUNE des deux familles** (meilleur "
+           f"{fam['meilleur314']:.4f} sur {n314} paires, {fam['meilleur316']:.4f} sur {n316} paires) ; "
+           f"G est {rang_G}ᵉ/{len(rows)} par amplitude "
+           f"({rang_G_13}ᵉ/{len(rows_13)} contrôle inclus — le contrôle, Δ = 0, se classe "
+           f"{rang_ctl_13}ᵉ ; table P3.14).",
+           "", f"Les deux colonnes sont des familles de multiplicité DIFFÉRENTES et les deux sont "
+           f"données : {n314} paires = les 12 bras contre le contrôle (`p314/master_table.json`), "
+           f"{n316} paires = la famille exploratoire du programme, qui ajoute les 4 comparaisons "
+           f"fusion-contre-expert (`metiers_experts/table_metiers_experts.json`, reprise par P3.17). "
+           f"Tailles calculées depuis les artefacts, Holm recomputé depuis les p bruts et comparé aux "
+           f"valeurs stockées (sanity bloquante) — jamais recopié d'une étiquette.",
            "", "Provenance : `results/moe_v3_cs/harness/table_Gseul_P310.json` (primaire cité ci-dessus) et "
            "`results/moe_v3_cs/p314/master_table.json` (contexte). La ligne mIoU de T4 est régénérée depuis "
            "les npz P3.16 (autre forward GPU des mêmes checkpoints) : écart ≤ 0,001 pt avec le harness "
@@ -454,7 +527,15 @@ def t2_primaire(tables: dict) -> tuple[str, dict]:
                          "delta": g["delta"], "ci95": g["ci95"], "p": g["p_two_sided"],
                          "holm": g["p_holm"], "per_seed": per_seed},
             "contexte_13bras": {"classement": [{"bras": a, "delta": d} for a, d in rows],
-                                "points": p314["point"]}}
+                                "points": p314["point"],
+                                "n_famille_p314": n314, "n_famille_p316": n316,
+                                "holm_p314": {k.replace("_vs_controle", ""): v for k, v in fam["h314"].items()},
+                                "holm_p316": {k.replace("_vs_controle", ""): v for k, v in fam["h316"].items()},
+                                "meilleur_holm_p314": fam["meilleur314"],
+                                "meilleur_holm_p316": fam["meilleur316"],
+                                "bras_hors_famille_316": sorted(set(p314["arms"]) - {"controle"} - fam["couverts_316"]),
+                                "rang_G": rang_G, "rang_G_13": rang_G_13,
+                                "rang_controle_13": rang_ctl_13}}
     return "\n".join(md) + "\n", data
 
 

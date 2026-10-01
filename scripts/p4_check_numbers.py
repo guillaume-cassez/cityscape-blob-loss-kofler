@@ -195,6 +195,82 @@ for en, fr in [("656 s/epoch", "656 s/époque"), ("+870 s/epoch", "+870 s/époqu
 check("brats seul", f"{MINUS}0.00376", f"{MINUS}0.00376")
 check("brats expert", "+0.00566", "+0.00566")
 
+# --------------------------------------------------------------------------- 9. FAMILLES DE HOLM (erratum v1.1.0)
+# Le défaut corrigé : une colonne intitulée « Holm (15 paires) » remplie avec les valeurs de
+# la famille 12 paires de P3.14. Les checks ci-dessous ne comparent plus des constantes : ils
+# RECALCULENT la taille de chaque famille et chaque Holm depuis les artefacts, puis vérifient
+# ligne à ligne la table de contexte des deux manuscrits.
+import importlib.util as _ilu
+
+_spec = _ilu.spec_from_file_location("_bs", ROOT / "src" / "moe" / "bootstrap.py")
+_bs = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(_bs)
+
+_p314 = json.load(open(ROOT / "results/moe_v3_cs/p314/master_table.json"))
+_p316 = json.load(open(ROOT / "results/moe_v3_cs/metiers_experts/table_metiers_experts.json"))
+_fam12 = {k: v["p_two_sided"] for k, v in _p314["pairwise"].items()}
+_fam15 = {k: v["p_two_sided"] for k, v in _p316["tables"]["mIoU"]["pairwise"].items()}
+_h12, _h15 = _bs.holm(_fam12), _bs.holm(_fam15)
+n12, n15 = len(_fam12), len(_fam15)
+
+check("taille famille 12 annoncée", f"Holm ({n12}-pair family)", f"Holm (famille {n12} paires)")
+check("taille famille 15 annoncée", f"Holm ({n15}-pair family)", f"Holm (famille {n15} paires)")
+check("meilleur Holm 12 paires", f"{min(_h12.values()):.4f} over {n12} pairs",
+      f"{min(_h12.values()):.4f} sur {n12} paires")
+check("meilleur Holm 15 paires", f"{min(_h15.values()):.4f} over {n15} pairs",
+      f"{min(_h15.values()):.4f} sur {n15} paires")
+
+_ordre = sorted(((a, _p314["pairwise"][f"{a}_vs_controle"]["delta"])
+                 for a in _p314["arms"] if a != "controle"), key=lambda x: -x[1])
+
+
+def verif_table_13bras(txt, langue, na15):
+    """Vérifie CHAQUE cellule p / Holm12 / Holm15 de la table de contexte 13 bras."""
+    global N
+    lignes = [l for l in txt.splitlines() if l.startswith("|")]
+    entetes = [i for i, l in enumerate(lignes)
+               if (f"Holm ({n12}-pair family)" in l or f"Holm (famille {n12} paires)" in l)]
+    if not entetes:
+        N += 1
+        FAILS.append(f"[{langue}] table 13 bras : en-tête de la famille {n12} paires introuvable "
+                     f"(colonne absente ou renommée — l'étiquette doit être calculée depuis "
+                     f"l'artefact, pas écrite à la main)")
+        return
+    deb = entetes[0]
+    corps = []
+    for l in lignes[deb + 1:]:
+        if set(l) <= set("|-: "):        # séparateur markdown
+            continue
+        if l.split("|")[1].strip() in ("—", "-"):
+            break
+        corps.append([c.strip() for c in l.split("|")[1:-1]])
+    if len(corps) != len(_ordre):
+        FAILS.append(f"[{langue}] table 13 bras : {len(corps)} lignes lues, {len(_ordre)} attendues")
+        return
+    for i, (a, d) in enumerate(_ordre):
+        N += 1
+        c = corps[i]
+        k = f"{a}_vs_controle"
+        h15 = f"{_h15[k]:.3f}" if k in _h15 else na15
+        att = [str(i + 1), f"{_p314['point'][a]*100:.2f}", f"{_fam12[k]:.4f}",
+               f"{_p314['pairwise'][k]['p_holm']:.3f}", h15]
+        # cellules : 0=#, 1=bras, 2=mIoU, 3=Δ[IC], 4=p, 5=Holm12, 6=Holm15 (gras ** ignorés)
+        relu = [c[0], c[2].replace("**", ""), c[4].replace("**", ""),
+                c[5].replace("**", ""), c[6].replace("**", "")]
+        if relu != att:
+            FAILS.append(f"[{langue}] table 13 bras ligne {i+1} ({a}) : lu {relu}, recalculé {att}")
+
+
+verif_table_13bras(EN, "EN", "n.a. (a)")
+verif_table_13bras(FR, "FR", "n.c. (a)")
+
+absent("étiquette de famille erronée (les valeurs de P3.14 sont la famille "
+       f"{n12} paires, pas {n15})",
+       "Holm (15 pairs)", "Holm (15 paires)", "the program's 15-pair family, computed over",
+       "la famille 15 paires du programme, calculée sur",
+       "No arm passes Holm 0.05 on the 15-pair exploratory family",
+       "Aucun bras ne passe Holm 0,05 sur la famille exploratoire 15 paires")
+
 # --------------------------------------------------------------------------- rapport
 if FAILS:
     print(f"ÉCHEC — {len(FAILS)} divergence(s) sur {N} checks :")

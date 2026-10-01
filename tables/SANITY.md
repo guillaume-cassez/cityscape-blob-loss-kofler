@@ -1,6 +1,6 @@
 # SANITY — P4.02 (régénération des statistiques du paper 4)
 
-Date : 2026-10-01T14:59:26 · B=10000 · bootstrap_seed=20260618
+Date : 2026-10-01T16:56:20 · B=10000 · bootstrap_seed=20260618
 
 | Check | Résultat | Détail |
 |---|---|---|
@@ -15,6 +15,48 @@ Date : 2026-10-01T14:59:26 · B=10000 · bootstrap_seed=20260618
 | mIoU seed 123 G vs harness (tolérance) | ✅ | npz 0.8128984 vs harness 0.8129079 (écart 9.5e-06) |
 | mIoU seed 456 G vs harness (tolérance) | ✅ | npz 0.8120164 vs harness 0.8120201 (écart 3.7e-06) |
 | fragments controle = P3.16 (mêmes npy) | ✅ | controle=519.26 vs P3.16 519.26 |
+| Holm P3.14 recomputé == stocké (A_vs_controle) | ✅ | 1 vs 1 |
+| Holm P3.14 recomputé == stocké (B_vs_controle) | ✅ | 1 vs 1 |
+| Holm P3.14 recomputé == stocké (C_vs_controle) | ✅ | 1 vs 1 |
+| Holm P3.14 recomputé == stocké (Cp_vs_controle) | ✅ | 0.4396 vs 0.4396 |
+| Holm P3.14 recomputé == stocké (D_vs_controle) | ✅ | 0.0576 vs 0.0576 |
+| Holm P3.14 recomputé == stocké (Dp_vs_controle) | ✅ | 0.2808 vs 0.2808 |
+| Holm P3.14 recomputé == stocké (fused_CpvetoB_vs_controle) | ✅ | 1 vs 1 |
+| Holm P3.14 recomputé == stocké (fused_CvetoB_vs_controle) | ✅ | 1 vs 1 |
+| Holm P3.14 recomputé == stocké (fused_DpvetoB_vs_controle) | ✅ | 0.3168 vs 0.3168 |
+| Holm P3.14 recomputé == stocké (fused_DvetoB_vs_controle) | ✅ | 0.082 vs 0.082 |
+| Holm P3.14 recomputé == stocké (G_vs_controle) | ✅ | 1 vs 1 |
+| Holm P3.14 recomputé == stocké (moe_v3cs_vs_controle) | ✅ | 0.0726 vs 0.0726 |
+| Holm P3.16 recomputé == stocké (B_vs_controle) | ✅ | 1 vs 1 |
+| Holm P3.16 recomputé == stocké (C_vs_controle) | ✅ | 1 vs 1 |
+| Holm P3.16 recomputé == stocké (Cp_vs_controle) | ✅ | 0.618 vs 0.618 |
+| Holm P3.16 recomputé == stocké (D_vs_controle) | ✅ | 0.075 vs 0.075 |
+| Holm P3.16 recomputé == stocké (Dp_vs_controle) | ✅ | 0.396 vs 0.396 |
+| Holm P3.16 recomputé == stocké (G_vs_controle) | ✅ | 1 vs 1 |
+| Holm P3.16 recomputé == stocké (fused_CvetoB_vs_controle) | ✅ | 1 vs 1 |
+| Holm P3.16 recomputé == stocké (fused_DvetoB_vs_controle) | ✅ | 0.1066 vs 0.1066 |
+| Holm P3.16 recomputé == stocké (fused_CpvetoB_vs_controle) | ✅ | 1 vs 1 |
+| Holm P3.16 recomputé == stocké (fused_DpvetoB_vs_controle) | ✅ | 0.4136 vs 0.4136 |
+| Holm P3.16 recomputé == stocké (fused_CvetoB_vs_C) | ✅ | 1 vs 1 |
+| Holm P3.16 recomputé == stocké (fused_DvetoB_vs_D) | ✅ | 1 vs 1 |
+| Holm P3.16 recomputé == stocké (fused_CpvetoB_vs_Cp) | ✅ | 0.7668 vs 0.7668 |
+| Holm P3.16 recomputé == stocké (fused_DpvetoB_vs_Dp) | ✅ | 1 vs 1 |
+| Holm P3.16 recomputé == stocké (moe_v3cs_vs_controle) | ✅ | 0.0924 vs 0.0924 |
+| famille P3.14 = 12 paires (12 bras vs contrôle) | ✅ | len(pairwise) = 12 |
+| famille P3.16 = 15 paires (12 vs contrôle + 3 fusion-vs-expert) | ✅ | len(pairwise mIoU) = 15, len(pairs) = 15 |
+| Holm mIoU polyvalence == famille 15 paires (B) | ✅ | 1 vs 1 |
+| Holm mIoU polyvalence == famille 15 paires (C) | ✅ | 1 vs 1 |
+| Holm mIoU polyvalence == famille 15 paires (Cp) | ✅ | 0.618 vs 0.618 |
+| Holm mIoU polyvalence == famille 15 paires (D) | ✅ | 0.075 vs 0.075 |
+| Holm mIoU polyvalence == famille 15 paires (Dp) | ✅ | 0.396 vs 0.396 |
+| Holm mIoU polyvalence == famille 15 paires (fused_CpvetoB) | ✅ | 1 vs 1 |
+| Holm mIoU polyvalence == famille 15 paires (fused_CvetoB) | ✅ | 1 vs 1 |
+| Holm mIoU polyvalence == famille 15 paires (fused_DpvetoB) | ✅ | 0.4136 vs 0.4136 |
+| Holm mIoU polyvalence == famille 15 paires (fused_DvetoB) | ✅ | 0.1066 vs 0.1066 |
+| Holm mIoU polyvalence == famille 15 paires (G) | ✅ | 1 vs 1 |
+| Holm mIoU polyvalence == famille 15 paires (moe_v3cs) | ✅ | 0.0924 vs 0.0924 |
+| classement 13 bras trié par Δ décroissant | ✅ | 13 bras, Δ de +0.52 à -0.28 pt |
+| rang G contrôle inclus == rang G décalé de la position du contrôle | ✅ | rang_G=7/12, rang_G_13=7/13, rang_contrôle=10 |
 | frag 16/19 classes en hausse vs B | ✅ | 16/19 hausses vs B, 19/19 vs contrôle, 14 Holm-significatives ; ne montent pas vs B : bus -0.0, wall -0.0, terrain -1.8 |
 | frag seule baisse matérielle = terrain | ✅ | baisses Holm-significatives : ['terrain'] |
 

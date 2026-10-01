@@ -1,5 +1,5 @@
 {
- "date": "2026-10-01T14:59:26",
+ "date": "2026-10-01T16:56:20",
  "checks": [
   {
    "check": "frag_classes somme == frag npy (G)",
