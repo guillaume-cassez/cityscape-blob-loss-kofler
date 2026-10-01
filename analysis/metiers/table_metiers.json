@@ -1,0 +1,684 @@
+{
+  "date": "2026-09-26T23:03:38",
+  "protocole": "holdout P3.10 first:500 (ordre loader val), seeds 42/123/456, bootstrap APPARIÉ B=10000, Δ = moe_v3cs − controle",
+  "refs": {
+    "brats": "endpoints pré-spécifiés paper3 BRATS : Dice lésion-wise + HD95 (fig5_both_endpoints) — ici l'équivalent Cityscapes multi-métrique",
+    "cityscapes_officiel": "mIoU (leaderboard) + IoU par classe ; boundary F1 3px et trimap = métriques du paper 1 (official_*.csv)"
+  },
+  "tables": {
+    "mIoU": {
+      "test": "paired image-bootstrap (dataset-level mIoU, seed-mean), two-sided",
+      "n_images": 500,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.8116796431196492,
+        "moe_v3cs": 0.8161818246594867
+      },
+      "ci95": {
+        "controle": [
+          0.7980180992073326,
+          0.8225184154111794
+        ],
+        "moe_v3cs": [
+          0.8026536130171855,
+          0.8270989247160175
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": 0.004502181539837502,
+          "ci95": [
+            0.0011038403881781927,
+            0.008180599445170845
+          ],
+          "p_two_sided": 0.0066,
+          "significant": true,
+          "p_holm": 0.0066
+        }
+      }
+    },
+    "IoU_person": {
+      "test": "paired image-bootstrap (IoU classe 11, dataset-level, seed-mean)",
+      "n_images": 500,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.8515222596276041,
+        "moe_v3cs": 0.8490985991375607
+      },
+      "ci95": {
+        "controle": [
+          0.8361159179954436,
+          0.8645768685325935
+        ],
+        "moe_v3cs": [
+          0.8334769666315658,
+          0.8624406109068811
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": -0.002423660490043389,
+          "ci95": [
+            -0.004291764639551535,
+            -0.0006157973100512475
+          ],
+          "p_two_sided": 0.008,
+          "significant": true,
+          "p_holm": 0.008
+        }
+      }
+    },
+    "IoU_rider": {
+      "test": "paired image-bootstrap (IoU classe 12, dataset-level, seed-mean)",
+      "n_images": 500,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.6891997947946273,
+        "moe_v3cs": 0.6855454183630588
+      },
+      "ci95": {
+        "controle": [
+          0.6618287333715505,
+          0.7134504513869329
+        ],
+        "moe_v3cs": [
+          0.654995944546788,
+          0.7123517554382683
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": -0.003654376431568518,
+          "ci95": [
+            -0.013020684466360252,
+            0.005241499041725727
+          ],
+          "p_two_sided": 0.4298,
+          "significant": false,
+          "p_holm": 0.4298
+        }
+      }
+    },
+    "boundary_f1_3px": {
+      "test": "paired image-bootstrap (mean-per-image value, seed-mean), two-sided",
+      "n_images": 500,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.7662735133767128,
+        "moe_v3cs": 0.7656656904021899
+      },
+      "ci95": {
+        "controle": [
+          0.7589272206510107,
+          0.7733130651930967
+        ],
+        "moe_v3cs": [
+          0.7582533400048813,
+          0.7728130706767241
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": -0.0006078229745228869,
+          "ci95": [
+            -0.0017788179824751143,
+            0.0005547840431331237
+          ],
+          "p_two_sided": 0.3004,
+          "significant": false,
+          "p_holm": 0.3004
+        }
+      }
+    },
+    "boundary_f1_3px_pieds": {
+      "test": "paired image-bootstrap (mean-per-image value, seed-mean), two-sided",
+      "n_images": 500,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.6748615564952294,
+        "moe_v3cs": 0.6742666929711899
+      },
+      "ci95": {
+        "controle": [
+          0.6475307232731332,
+          0.7015574831911674
+        ],
+        "moe_v3cs": [
+          0.6471066697602471,
+          0.7007880081495891
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": -0.0005948635240394795,
+          "ci95": [
+            -0.004120083246628456,
+            0.0030861203859250106
+          ],
+          "p_two_sided": 0.7238,
+          "significant": false,
+          "p_holm": 0.7238
+        }
+      }
+    },
+    "rappel_strict_instances": {
+      "test": "paired image-bootstrap (rappel_strict_instances)",
+      "n_images": 441,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.7625347588232737,
+        "moe_v3cs": 0.7672826523640577
+      },
+      "ci95": {
+        "controle": [
+          0.7435458422907057,
+          0.7808139516762505
+        ],
+        "moe_v3cs": [
+          0.7477557575280577,
+          0.7855723701820956
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": 0.004747893540783976,
+          "ci95": [
+            -4.490129188178806e-05,
+            0.00934982888138431
+          ],
+          "p_two_sided": 0.0516,
+          "significant": false,
+          "p_holm": 0.0516
+        }
+      }
+    },
+    "precision_ped_pixels": {
+      "test": "paired image-bootstrap (precision_ped_pixels)",
+      "n_images": 479,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.691511457774647,
+        "moe_v3cs": 0.6914673856078939
+      },
+      "ci95": {
+        "controle": [
+          0.667483057651543,
+          0.7149136914781165
+        ],
+        "moe_v3cs": [
+          0.6673250109994235,
+          0.714629924925324
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": -4.4072166753061914e-05,
+          "ci95": [
+            -0.0037575820974618036,
+            0.003723593946836581
+          ],
+          "p_two_sided": 0.9876,
+          "significant": false,
+          "p_holm": 0.9876
+        }
+      }
+    },
+    "instances_toutes_rappel": {
+      "test": "paired image-bootstrap (rappel instances toutes)",
+      "n_images": 441,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.7997523506652957,
+        "moe_v3cs": 0.8037232128044393
+      },
+      "ci95": {
+        "controle": [
+          0.7827710402197913,
+          0.8158048087614308
+        ],
+        "moe_v3cs": [
+          0.7866526612602236,
+          0.8200492547146065
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": 0.0039708621391435495,
+          "ci95": [
+            -0.00027745360597953265,
+            0.007656001567897974
+          ],
+          "p_two_sided": 0.0694,
+          "significant": false,
+          "p_holm": 0.0694
+        }
+      }
+    },
+    "instances_toutes_det05": {
+      "test": "paired image-bootstrap (det05 instances toutes)",
+      "n_images": 441,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.8711112004244762,
+        "moe_v3cs": 0.8725594100896051
+      },
+      "ci95": {
+        "controle": [
+          0.8525914348142231,
+          0.8885690039395019
+        ],
+        "moe_v3cs": [
+          0.853989371229398,
+          0.8899325144216407
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": 0.00144820966512893,
+          "ci95": [
+            -0.0038465165503514254,
+            0.00651262625300994
+          ],
+          "p_two_sided": 0.562,
+          "significant": false,
+          "p_holm": 0.562
+        }
+      }
+    },
+    "instances_individuelles_rappel": {
+      "test": "paired image-bootstrap (rappel instances individuelles)",
+      "n_images": 440,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.8009648047731549,
+        "moe_v3cs": 0.8050354997873176
+      },
+      "ci95": {
+        "controle": [
+          0.7839190222377209,
+          0.8172119223937618
+        ],
+        "moe_v3cs": [
+          0.7878443775120347,
+          0.8216228205809332
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": 0.004070695014162684,
+          "ci95": [
+            -0.00029880795118618906,
+            0.007829873221847047
+          ],
+          "p_two_sided": 0.0662,
+          "significant": false,
+          "p_holm": 0.0662
+        }
+      }
+    },
+    "instances_individuelles_det05": {
+      "test": "paired image-bootstrap (det05 instances individuelles)",
+      "n_images": 440,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.871754988338456,
+        "moe_v3cs": 0.8731658828318202
+      },
+      "ci95": {
+        "controle": [
+          0.853350930547441,
+          0.8890477403299177
+        ],
+        "moe_v3cs": [
+          0.8546542925585263,
+          0.8906679211727508
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": 0.0014108944933641787,
+          "ci95": [
+            -0.003964977061151254,
+            0.006534254089633379
+          ],
+          "p_two_sided": 0.571,
+          "significant": false,
+          "p_holm": 0.571
+        }
+      }
+    },
+    "instances_foule_rappel": {
+      "test": "paired image-bootstrap (rappel instances foule)",
+      "n_images": 63,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.7458389554420267,
+        "moe_v3cs": 0.7419945567111128
+      },
+      "ci95": {
+        "controle": [
+          0.672813054644142,
+          0.812485231066215
+        ],
+        "moe_v3cs": [
+          0.6679768033323187,
+          0.8090144766893694
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": -0.0038443987309139116,
+          "ci95": [
+            -0.015364588576738267,
+            0.004932297605219743
+          ],
+          "p_two_sided": 0.4822,
+          "significant": false,
+          "p_holm": 0.4822
+        }
+      }
+    },
+    "instances_foule_det05": {
+      "test": "paired image-bootstrap (det05 instances foule)",
+      "n_images": 63,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.8359788359788359,
+        "moe_v3cs": 0.8306878306878307
+      },
+      "ci95": {
+        "controle": [
+          0.746031746031746,
+          0.9206349206349206
+        ],
+        "moe_v3cs": [
+          0.7407407407407408,
+          0.9100529100529101
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": -0.005291005291005235,
+          "ci95": [
+            -0.02645502645502662,
+            0.015873015873015928
+          ],
+          "p_two_sided": 0.7946,
+          "significant": false,
+          "p_holm": 0.7946
+        }
+      }
+    },
+    "instances_taille_T1_rappel": {
+      "test": "paired image-bootstrap (rappel instances taille_T1)",
+      "n_images": 315,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.6499397383322506,
+        "moe_v3cs": 0.6579639569283054
+      },
+      "ci95": {
+        "controle": [
+          0.6193605725676414,
+          0.6796242394073133
+        ],
+        "moe_v3cs": [
+          0.6273709499037873,
+          0.6877450914568544
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": 0.008024218596054844,
+          "ci95": [
+            0.0007324460613812617,
+            0.015097400946727478
+          ],
+          "p_two_sided": 0.033,
+          "significant": true,
+          "p_holm": 0.033
+        }
+      }
+    },
+    "instances_taille_T1_det05": {
+      "test": "paired image-bootstrap (det05 instances taille_T1)",
+      "n_images": 315,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.7172791006528946,
+        "moe_v3cs": 0.7204240558924654
+      },
+      "ci95": {
+        "controle": [
+          0.6831920542224775,
+          0.7509659822301825
+        ],
+        "moe_v3cs": [
+          0.6859040328842694,
+          0.7541367815795921
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": 0.0031449552395708125,
+          "ci95": [
+            -0.008443378889729855,
+            0.014551546712961206
+          ],
+          "p_two_sided": 0.5908,
+          "significant": false,
+          "p_holm": 0.5908
+        }
+      }
+    },
+    "instances_taille_T2_rappel": {
+      "test": "paired image-bootstrap (rappel instances taille_T2)",
+      "n_images": 320,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.8453393485640189,
+        "moe_v3cs": 0.8492872202172755
+      },
+      "ci95": {
+        "controle": [
+          0.8279260796868341,
+          0.8615041043858868
+        ],
+        "moe_v3cs": [
+          0.8317775743053742,
+          0.8655973124108276
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": 0.003947871653256607,
+          "ci95": [
+            -0.00031337259912809774,
+            0.008096726689951582
+          ],
+          "p_two_sided": 0.0684,
+          "significant": false,
+          "p_holm": 0.0684
+        }
+      }
+    },
+    "instances_taille_T2_det05": {
+      "test": "paired image-bootstrap (det05 instances taille_T2)",
+      "n_images": 320,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.9314725436600436,
+        "moe_v3cs": 0.9343182887714138
+      },
+      "ci95": {
+        "controle": [
+          0.9113061832554019,
+          0.9498664172921985
+        ],
+        "moe_v3cs": [
+          0.9152747330071548,
+          0.9517520761934825
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": 0.002845745111370146,
+          "ci95": [
+            -0.003628025981541566,
+            0.010200847763347683
+          ],
+          "p_two_sided": 0.4046,
+          "significant": false,
+          "p_holm": 0.4046
+        }
+      }
+    },
+    "instances_taille_T3_rappel": {
+      "test": "paired image-bootstrap (rappel instances taille_T3)",
+      "n_images": 335,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.9347442818150659,
+        "moe_v3cs": 0.9373290188707385
+      },
+      "ci95": {
+        "controle": [
+          0.9257794003895579,
+          0.9424938201808819
+        ],
+        "moe_v3cs": [
+          0.9286779349550991,
+          0.9447423740813897
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": 0.002584737055672637,
+          "ci95": [
+            0.0014188674440444749,
+            0.0038432623531308467
+          ],
+          "p_two_sided": 0.0,
+          "significant": true,
+          "p_holm": 0.0
+        }
+      }
+    },
+    "instances_taille_T3_det05": {
+      "test": "paired image-bootstrap (det05 instances taille_T3)",
+      "n_images": 335,
+      "B": 10000,
+      "arms": [
+        "controle",
+        "moe_v3cs"
+      ],
+      "point": {
+        "controle": 0.9895996209429047,
+        "moe_v3cs": 0.9895709422810759
+      },
+      "ci95": {
+        "controle": [
+          0.9802320540156361,
+          0.9965647950722579
+        ],
+        "moe_v3cs": [
+          0.9805401438920686,
+          0.9963320053866007
+        ]
+      },
+      "pairwise": {
+        "moe_v3cs_vs_controle": {
+          "delta": -2.8678661828762664e-05,
+          "ci95": [
+            -0.0011421588797867477,
+            0.0013503909026297833
+          ],
+          "p_two_sided": 0.9104,
+          "significant": false,
+          "p_holm": 0.9104
+        }
+      }
+    }
+  },
+  "effectifs_instances": {
+    "total": 4002,
+    "foule_groupe": 64,
+    "individuelles": 3938,
+    "terciles_q": [
+      568.0,
+      2147.000000000001
+    ]
+  }
+}

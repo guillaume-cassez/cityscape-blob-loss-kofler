@@ -1,0 +1,57 @@
+{
+  "date": "2026-09-22T16:20:36",
+  "holdout": {
+    "description": "first:10",
+    "n": 10,
+    "bornes": [
+      "max_images=10"
+    ]
+  },
+  "B": 100,
+  "bootstrap_seed": 20260618,
+  "ref": null,
+  "arms": {
+    "G": {
+      "kind": "dense",
+      "meta": {
+        "template": "checkpoints/pilot_fullres_G_blob_seed{seed}/epoch_160.pth"
+      },
+      "seeds": [
+        42
+      ],
+      "source_par_seed": {
+        "42": "forward:checkpoints/pilot_fullres_G_blob_seed42/epoch_160.pth"
+      },
+      "miou_dataset_par_seed": {
+        "42": 0.7626002348529076
+      },
+      "routing": {},
+      "provenance": {},
+      "epoch": {}
+    }
+  },
+  "bootstrap_miou": {
+    "test": "paired image-bootstrap (dataset-level mIoU, seed-mean), two-sided",
+    "n_images": 10,
+    "B": 100,
+    "arms": [
+      "G"
+    ],
+    "point": {
+      "G": 0.7626002348529076
+    },
+    "ci95": {
+      "G": [
+        0.6937244054086433,
+        0.8016276427306912
+      ]
+    },
+    "pairwise": {}
+  },
+  "bootstrap_bf1": null,
+  "bf1_note": null,
+  "notes": [
+    "holdout partagé : first:10",
+    "mIoU dataset-level, bootstrap APPARIÉ (mêmes positions pour tous les bras), seeds moyennés dans chaque réplicat"
+  ]
+}

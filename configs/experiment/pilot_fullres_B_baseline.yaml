@@ -1,0 +1,38 @@
+# @package _global_
+# Pilot B (Baseline): CE + Dice, full-res 1024x2048, 160 epochs, Blackwell-optimized
+# Goal: sanity check + baseline reference for variant C
+
+defaults:
+  - override /model: convnextv2_upernet
+  - override /loss: ce_dice
+  - override /augmentation: full_res
+  - override /dataset: cityscapes_fine
+
+experiment:
+  name: pilot_fullres_B_baseline
+  seeds: [42, 123, 456]
+  wandb_project: city-scape
+  wandb_tags: [pilot, fullres, baseline, ce_dice, blackwell]
+
+training:
+  epochs: 160
+  batch_size: 2
+  gradient_accumulation_steps: 4   # effective batch = 8
+  optimizer:
+    type: AdamW
+    lr: 6.0e-5
+    weight_decay: 0.01
+    betas: [0.9, 0.999]
+  scheduler:
+    type: poly
+    power: 1.0
+    warmup_epochs: 1
+  mixed_precision: bf16
+  gradient_checkpointing: false    # have 96GB, no need
+  channels_last: true              # Blackwell tensor cores
+  deterministic: false             # cudnn.benchmark requires non-deterministic
+
+evaluation:
+  checkpoint_every_epochs: 10
+  metrics: [miou, per_class_iou, boundary_f1]
+  tta: false

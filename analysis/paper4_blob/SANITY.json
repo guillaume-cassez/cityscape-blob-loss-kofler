@@ -1,0 +1,60 @@
+{
+ "date": "2026-10-01T14:59:26",
+ "checks": [
+  {
+   "check": "frag_classes somme == frag npy (G)",
+   "ok": true,
+   "detail": "(G) somme des 19 classes bit-à-bit égale au count total (mean 933.9/image)"
+  },
+  {
+   "check": "frag_classes somme == frag npy (B)",
+   "ok": true,
+   "detail": "(B) somme des 19 classes bit-à-bit égale au count total (mean 615.1/image)"
+  },
+  {
+   "check": "frag_classes somme == frag npy (controle)",
+   "ok": true,
+   "detail": "(controle) somme des 19 classes bit-à-bit égale au count total (mean 519.3/image)"
+  },
+  {
+   "check": "P3.16 G_vs_controle reproduit",
+   "ok": true,
+   "detail": "19 métriques bit-à-bit (delta/IC/p, mêmes index bootstrap)"
+  },
+  {
+   "check": "harness P3.10 points G/B (tolérance 1e-4, 2 forwards)",
+   "ok": true,
+   "detail": "npz G=0.8126227 vs harness 0.8126326 (écart 9.9e-06) ; B écart 4.1e-05 — non-déterminisme forward, cf P3.17 sanity 4,1e-3 pt"
+  },
+  {
+   "check": "harness P3.10 primaire G−B (tolérance)",
+   "ok": true,
+   "detail": "npz Δ=+0.1733pt p=0.3952 vs harness Δ=+0.1702pt p=0.4032 — même verdict (ns)"
+  },
+  {
+   "check": "P3.14 master G_vs_controle (tolérance)",
+   "ok": true,
+   "detail": "npz Δ=+0.0943pt p=0.6592 vs P3.14 Δ=+0.0950pt p=0.6552"
+  },
+  {
+   "check": "mIoU seed 42 G vs harness (tolérance)",
+   "ok": true,
+   "detail": "npz 0.8129533 vs harness 0.8129699 (écart 1.7e-05)"
+  },
+  {
+   "check": "mIoU seed 123 G vs harness (tolérance)",
+   "ok": true,
+   "detail": "npz 0.8128984 vs harness 0.8129079 (écart 9.5e-06)"
+  },
+  {
+   "check": "mIoU seed 456 G vs harness (tolérance)",
+   "ok": true,
+   "detail": "npz 0.8120164 vs harness 0.8120201 (écart 3.7e-06)"
+  },
+  {
+   "check": "fragments controle = P3.16 (mêmes npy)",
+   "ok": true,
+   "detail": "controle=519.26 vs P3.16 519.26"
+  }
+ ]
+}

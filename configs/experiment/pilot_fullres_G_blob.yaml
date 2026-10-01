@@ -1,0 +1,53 @@
+# @package _global_
+# Pilot G (BlobLoss β=0.5) : miroir EXACT du pilote B — seule la loss change (ce_dice_blob =
+# CE+Dice + 0.5·blob de Kofler). Bras G de BRATS transposé (plan §2.1, décision Guillaume
+# 2026-09-17 : les 4 experts du MoE-V3-CS = B baseline / D kervadec / Dp distmap / G blob,
+# en remplacement de C). Full-res 1024x2048, 160 époques, batch effectif 8 — budget mesuré :
+# ≈ 655 s/époque (pilote Cprime) + ≈10 % de surcoût CC cc3d (mesuré 22.4 ms/image GT réel,
+# 2026-09-17) → ≈ 29-32 h/seed. Le `fpn_convs[0]` ép-160 de ce run initialise l'expert 3
+# du MoE-V3-CS (src/moe/moe_model.py, seed apparié — P3.06 §2b).
+
+defaults:
+  - override /model: convnextv2_upernet
+  - override /loss: ce_dice_blob
+  - override /augmentation: full_res
+  - override /dataset: cityscapes_fine
+
+experiment:
+  name: pilot_fullres_G_blob
+  seeds: [42, 123, 456]
+  wandb_project: city-scape
+  wandb_tags: [pilot, fullres, blobloss, kofler, moe-expert, paper3]
+
+# Le paquetage d'instances (blob_glob) est retourné par le dataset et DOIT subir le même
+# flip que image/label (entier, label-préservant). Le dataset flippe donc lui-même
+# (p=0.5, cohérent image/label/glob) et le flip albumentations est DÉSACTIVÉ ici pour ne
+# pas désaligner le glob. Distribution d'augmentation identique aux autres bras (hflip
+# p=0.5), seul le point d'application change. Pré-calcul : scripts/precompute_blob_lab.py.
+augmentation:
+  train:
+    random_flip:
+      horizontal: false
+
+training:
+  epochs: 160
+  batch_size: 2
+  gradient_accumulation_steps: 4   # effective batch = 8 (identique à la recette B)
+  optimizer:
+    type: AdamW
+    lr: 6.0e-5
+    weight_decay: 0.01
+    betas: [0.9, 0.999]
+  scheduler:
+    type: poly
+    power: 1.0
+    warmup_epochs: 1
+  mixed_precision: bf16
+  gradient_checkpointing: false    # have 96GB, no need
+  channels_last: true              # Blackwell tensor cores
+  deterministic: false             # cudnn.benchmark requires non-deterministic
+
+evaluation:
+  checkpoint_every_epochs: 10
+  metrics: [miou, per_class_iou, boundary_f1]
+  tta: false

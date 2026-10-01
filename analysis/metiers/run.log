@@ -1,0 +1,157 @@
+Cityscapes train (fine): 2975 images
+Cityscapes val (fine): 500 images
+[metiers 22:36:50]   [A] GT + chemins labels enregistrés (500 images)
+[metiers 22:36:50]   [A] controle seed 42 : forward 500 imgs, 34s
+Cityscapes train (fine): 2975 images
+Cityscapes val (fine): 500 images
+[metiers 22:38:17]   [A] controle seed 123 : forward 500 imgs, 31s
+Cityscapes train (fine): 2975 images
+Cityscapes val (fine): 500 images
+[metiers 22:39:51]   [A] controle seed 456 : forward 500 imgs, 31s
+Cityscapes train (fine): 2975 images
+Cityscapes val (fine): 500 images
+[metiers 22:41:33]   [A] moe_v3cs seed 42 : forward 500 imgs, 45s
+Cityscapes train (fine): 2975 images
+Cityscapes val (fine): 500 images
+[metiers 22:43:08]   [A] moe_v3cs seed 123 : forward 500 imgs, 41s
+Cityscapes train (fine): 2975 images
+Cityscapes val (fine): 500 images
+[metiers 22:44:42]   [A] moe_v3cs seed 456 : forward 500 imgs, 41s
+[metiers 22:44:43]   [B] 100/500 (1s)
+[metiers 22:44:44]   [B] 200/500 (2s)
+[metiers 22:44:45]   [B] 300/500 (3s)
+[metiers 22:44:46]   [B] 400/500 (4s)
+[metiers 22:44:47]   [B] 500/500 (6s)
+[metiers 22:44:51]   [B] 4002 instances ped (64 groupe/foule, terciles 568/2147 px), 0 px sans id → gt_instances_ped.npz
+[metiers 22:48:04]   [C] controle seed 42 : 100/500 (192s)
+[metiers 22:48:04]   [C] moe_v3cs seed 42 : 100/500 (193s)
+[metiers 22:48:05]   [C] moe_v3cs seed 123 : 100/500 (193s)
+[metiers 22:48:05]   [C] controle seed 456 : 100/500 (194s)
+[metiers 22:48:05]   [C] moe_v3cs seed 456 : 100/500 (194s)
+[metiers 22:48:05]   [C] controle seed 123 : 100/500 (194s)
+[metiers 22:51:14]   [C] moe_v3cs seed 123 : 200/500 (382s)
+[metiers 22:51:14]   [C] controle seed 42 : 200/500 (382s)
+[metiers 22:51:14]   [C] moe_v3cs seed 42 : 200/500 (383s)
+[metiers 22:51:16]   [C] moe_v3cs seed 456 : 200/500 (384s)
+[metiers 22:51:16]   [C] controle seed 456 : 200/500 (384s)
+[metiers 22:51:16]   [C] controle seed 123 : 200/500 (385s)
+[metiers 22:54:05]   [C] moe_v3cs seed 123 : 300/500 (553s)
+[metiers 22:54:08]   [C] controle seed 42 : 300/500 (556s)
+[metiers 22:54:08]   [C] moe_v3cs seed 42 : 300/500 (556s)
+[metiers 22:54:09]   [C] controle seed 456 : 300/500 (557s)
+[metiers 22:54:10]   [C] moe_v3cs seed 456 : 300/500 (558s)
+[metiers 22:54:10]   [C] controle seed 123 : 300/500 (558s)
+[metiers 22:56:55]   [C] moe_v3cs seed 123 : 400/500 (723s)
+[metiers 22:56:58]   [C] controle seed 42 : 400/500 (726s)
+[metiers 22:56:58]   [C] moe_v3cs seed 42 : 400/500 (727s)
+[metiers 22:56:58]   [C] controle seed 456 : 400/500 (727s)
+[metiers 22:57:00]   [C] controle seed 123 : 400/500 (728s)
+[metiers 22:57:00]   [C] moe_v3cs seed 456 : 400/500 (728s)
+[metiers 23:00:01]   [C] moe_v3cs seed 123 : 500/500 (909s)
+[metiers 23:00:01]   [C] moe_v3cs seed 123 : terminé (909s) → metriques_moe_v3cs_seed123.npz
+[metiers 23:00:03]   [C] controle seed 456 : 500/500 (911s)
+[metiers 23:00:03]   [C] controle seed 456 : terminé (911s) → metriques_controle_seed456.npz
+[metiers 23:00:05]   [C] controle seed 42 : 500/500 (913s)
+[metiers 23:00:05]   [C] controle seed 42 : terminé (913s) → metriques_controle_seed42.npz
+[metiers 23:00:06]   [C] moe_v3cs seed 42 : 500/500 (914s)
+[metiers 23:00:06]   [C] moe_v3cs seed 42 : terminé (914s) → metriques_moe_v3cs_seed42.npz
+[metiers 23:00:06]   [C] controle seed 123 : 500/500 (914s)
+[metiers 23:00:06]   [C] controle seed 123 : terminé (914s) → metriques_controle_seed123.npz
+[metiers 23:00:07]   [C] moe_v3cs seed 456 : 500/500 (916s)
+[metiers 23:00:07]   [C] moe_v3cs seed 456 : terminé (916s) → metriques_moe_v3cs_seed456.npz
+[metiers 23:00:12] mIoU (contrôle de cohérence vs P3.10 : 0.8117 / 0.8162)
+n_images=500 B=10000 bras=['controle', 'moe_v3cs']
+  controle: mIoU=81.17  CI95=[79.80, 82.25]
+  moe_v3cs: mIoU=81.62  CI95=[80.27, 82.71]
+  moe_v3cs_vs_controle: Δ=+0.45  CI95=[+0.11, +0.82]  p=0.007  Holm=0.007 *
+[metiers 23:00:16] IoU_person
+n_images=500 B=10000 bras=['controle', 'moe_v3cs']
+  controle: IoU=85.15  CI95=[83.61, 86.46]
+  moe_v3cs: IoU=84.91  CI95=[83.35, 86.24]
+  moe_v3cs_vs_controle: Δ=-0.24  CI95=[-0.43, -0.06]  p=0.008  Holm=0.008 *
+[metiers 23:00:21] IoU_rider
+n_images=500 B=10000 bras=['controle', 'moe_v3cs']
+  controle: IoU=68.92  CI95=[66.18, 71.35]
+  moe_v3cs: IoU=68.55  CI95=[65.50, 71.24]
+  moe_v3cs_vs_controle: Δ=-0.37  CI95=[-1.30, +0.52]  p=0.430  Holm=0.430  
+[metiers 23:00:21] Boundary F1 (toutes classes, 3 px)
+n_images=500 B=10000 bras=['controle', 'moe_v3cs']
+  controle: BF1=76.63  CI95=[75.89, 77.33]
+  moe_v3cs: BF1=76.57  CI95=[75.83, 77.28]
+  moe_v3cs_vs_controle: Δ=-0.06  CI95=[-0.18, +0.06]  p=0.300  Holm=0.300  
+[metiers 23:00:21] Boundary F1 piétons (person+rider, 3 px)
+n_images=500 B=10000 bras=['controle', 'moe_v3cs']
+  controle: BF1ped=67.49  CI95=[64.75, 70.16]
+  moe_v3cs: BF1ped=67.43  CI95=[64.71, 70.08]
+  moe_v3cs_vs_controle: Δ=-0.06  CI95=[-0.41, +0.31]  p=0.724  Holm=0.724  
+[metiers 23:00:21] rappel_strict_instances (n=441)
+n_images=441 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=76.25  CI95=[74.35, 78.08]
+  moe_v3cs: v=76.73  CI95=[74.78, 78.56]
+  moe_v3cs_vs_controle: Δ=+0.47  CI95=[-0.00, +0.93]  p=0.052  Holm=0.052  
+[metiers 23:00:22] precision_ped_pixels (n=487)
+n_images=487 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=68.02  CI95=[65.50, 70.39]
+  moe_v3cs: v=nan  CI95=[nan, nan]
+  moe_v3cs_vs_controle: Δ=+nan  CI95=[+nan, +nan]  p=0.000  Holm=0.000 *
+[metiers 23:00:22] instances toutes — rappel (n=441)
+n_images=441 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=79.98  CI95=[78.28, 81.58]
+  moe_v3cs: v=80.37  CI95=[78.67, 82.00]
+  moe_v3cs_vs_controle: Δ=+0.40  CI95=[-0.03, +0.77]  p=0.069  Holm=0.069  
+[metiers 23:00:22] instances toutes — det05 (n=441)
+n_images=441 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=87.11  CI95=[85.26, 88.86]
+  moe_v3cs: v=87.26  CI95=[85.40, 88.99]
+  moe_v3cs_vs_controle: Δ=+0.14  CI95=[-0.38, +0.65]  p=0.562  Holm=0.562  
+[metiers 23:00:22] instances individuelles — rappel (n=440)
+n_images=440 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=80.10  CI95=[78.39, 81.72]
+  moe_v3cs: v=80.50  CI95=[78.78, 82.16]
+  moe_v3cs_vs_controle: Δ=+0.41  CI95=[-0.03, +0.78]  p=0.066  Holm=0.066  
+[metiers 23:00:23] instances individuelles — det05 (n=440)
+n_images=440 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=87.18  CI95=[85.34, 88.90]
+  moe_v3cs: v=87.32  CI95=[85.47, 89.07]
+  moe_v3cs_vs_controle: Δ=+0.14  CI95=[-0.40, +0.65]  p=0.571  Holm=0.571  
+[metiers 23:00:23] instances foule — rappel (n=63)
+n_images=63 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=74.58  CI95=[67.28, 81.25]
+  moe_v3cs: v=74.20  CI95=[66.80, 80.90]
+  moe_v3cs_vs_controle: Δ=-0.38  CI95=[-1.54, +0.49]  p=0.482  Holm=0.482  
+[metiers 23:00:23] instances foule — det05 (n=63)
+n_images=63 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=83.60  CI95=[74.60, 92.06]
+  moe_v3cs: v=83.07  CI95=[74.07, 91.01]
+  moe_v3cs_vs_controle: Δ=-0.53  CI95=[-2.65, +1.59]  p=0.795  Holm=0.795  
+[metiers 23:00:23] instances taille_T1 — rappel (n=315)
+n_images=315 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=64.99  CI95=[61.94, 67.96]
+  moe_v3cs: v=65.80  CI95=[62.74, 68.77]
+  moe_v3cs_vs_controle: Δ=+0.80  CI95=[+0.07, +1.51]  p=0.033  Holm=0.033 *
+[metiers 23:00:23] instances taille_T1 — det05 (n=315)
+n_images=315 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=71.73  CI95=[68.32, 75.10]
+  moe_v3cs: v=72.04  CI95=[68.59, 75.41]
+  moe_v3cs_vs_controle: Δ=+0.31  CI95=[-0.84, +1.46]  p=0.591  Holm=0.591  
+[metiers 23:00:24] instances taille_T2 — rappel (n=320)
+n_images=320 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=84.53  CI95=[82.79, 86.15]
+  moe_v3cs: v=84.93  CI95=[83.18, 86.56]
+  moe_v3cs_vs_controle: Δ=+0.39  CI95=[-0.03, +0.81]  p=0.068  Holm=0.068  
+[metiers 23:00:24] instances taille_T2 — det05 (n=320)
+n_images=320 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=93.15  CI95=[91.13, 94.99]
+  moe_v3cs: v=93.43  CI95=[91.53, 95.18]
+  moe_v3cs_vs_controle: Δ=+0.28  CI95=[-0.36, +1.02]  p=0.405  Holm=0.405  
+[metiers 23:00:24] instances taille_T3 — rappel (n=335)
+n_images=335 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=93.47  CI95=[92.58, 94.25]
+  moe_v3cs: v=93.73  CI95=[92.87, 94.47]
+  moe_v3cs_vs_controle: Δ=+0.26  CI95=[+0.14, +0.38]  p=0.000  Holm=0.000 *
+[metiers 23:00:24] instances taille_T3 — det05 (n=335)
+n_images=335 B=10000 bras=['controle', 'moe_v3cs']
+  controle: v=98.96  CI95=[98.02, 99.66]
+  moe_v3cs: v=98.96  CI95=[98.05, 99.63]
+  moe_v3cs_vs_controle: Δ=-0.00  CI95=[-0.11, +0.14]  p=0.910  Holm=0.910  
+[metiers 23:00:24] → results/moe_v3_cs/metiers/table_metiers.json

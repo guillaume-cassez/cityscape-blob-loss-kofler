@@ -1,0 +1,104 @@
+{
+  "date": "2026-09-22T16:29:35",
+  "holdout": {
+    "description": "first:500",
+    "n": 500,
+    "bornes": [
+      "max_images=500"
+    ]
+  },
+  "B": 10000,
+  "bootstrap_seed": 20260618,
+  "ref": "B",
+  "arms": {
+    "G": {
+      "kind": "dense",
+      "meta": {
+        "template": "checkpoints/pilot_fullres_G_blob_seed{seed}/epoch_160.pth"
+      },
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "source_par_seed": {
+        "42": "forward:checkpoints/pilot_fullres_G_blob_seed42/epoch_160.pth",
+        "123": "forward:checkpoints/pilot_fullres_G_blob_seed123/epoch_160.pth",
+        "456": "forward:checkpoints/pilot_fullres_G_blob_seed456/epoch_160.pth"
+      },
+      "miou_dataset_par_seed": {
+        "42": 0.8129698982137215,
+        "123": 0.8129079352435913,
+        "456": 0.8120200799918348
+      },
+      "routing": {},
+      "provenance": {},
+      "epoch": {}
+    },
+    "B": {
+      "kind": "npy",
+      "meta": {
+        "template": "results/perimage_cm/B_seed{seed}__epoch_160.cm.npy"
+      },
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "source_par_seed": {
+        "42": "results/perimage_cm/B_seed42__epoch_160.cm.npy",
+        "123": "results/perimage_cm/B_seed123__epoch_160.cm.npy",
+        "456": "results/perimage_cm/B_seed456__epoch_160.cm.npy"
+      },
+      "miou_dataset_par_seed": {
+        "42": 0.8142946533854425,
+        "123": 0.8086120082568196,
+        "456": 0.8098852521637498
+      },
+      "routing": {},
+      "provenance": {},
+      "epoch": {}
+    }
+  },
+  "bootstrap_miou": {
+    "test": "paired image-bootstrap (dataset-level mIoU, seed-mean), two-sided",
+    "n_images": 500,
+    "B": 10000,
+    "arms": [
+      "G",
+      "B"
+    ],
+    "point": {
+      "G": 0.8126326378163825,
+      "B": 0.8109306379353374
+    },
+    "ci95": {
+      "G": [
+        0.7981461208394375,
+        0.8243091208303275
+      ],
+      "B": [
+        0.7969436279489335,
+        0.8220384182673419
+      ]
+    },
+    "pairwise": {
+      "B_vs_G": {
+        "delta": -0.0017019998810451353,
+        "ci95": [
+          -0.005511845144559066,
+          0.0023288442798175017
+        ],
+        "p_two_sided": 0.4032,
+        "significant": false,
+        "p_holm": 0.4032
+      }
+    }
+  },
+  "bootstrap_bf1": null,
+  "bf1_note": null,
+  "notes": [
+    "holdout partagé : first:500",
+    "mIoU dataset-level, bootstrap APPARIÉ (mêmes positions pour tous les bras), seeds moyennés dans chaque réplicat"
+  ]
+}

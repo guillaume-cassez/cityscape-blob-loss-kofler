@@ -1,0 +1,13 @@
+# @package loss
+# Baseline loss: Cross-Entropy + Dice
+
+type: composite
+components:
+  - type: cross_entropy
+    weight: 0.5
+    class_weights: isns  # Inverse Square Root Number of Samples
+    ignore_index: 255
+  - type: dice
+    weight: 0.5
+    smooth: 1.0
+    ignore_index: 255

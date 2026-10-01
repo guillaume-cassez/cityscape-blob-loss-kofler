@@ -1,0 +1,831 @@
+{
+ "date": "2026-10-01T14:59:27",
+ "script": "scripts/p4_blob_tables_figures.py",
+ "B": 10000,
+ "bootstrap_seed": 20260618,
+ "provenance": {
+  "T1": [
+   "configs/loss/ce_dice_blob.yaml",
+   "configs/experiment/pilot_fullres_G_blob.yaml",
+   "results/p3_queue/pilot_fullres_G_blob_seed42.log",
+   "results/p3_queue/pilot_fullres_G_blob_seed123.log",
+   "results/p3_queue/pilot_fullres_G_blob_seed456.log"
+  ],
+  "T2": [
+   "results/moe_v3_cs/harness/table_Gseul_P310.json",
+   "results/moe_v3_cs/p314/master_table.json"
+  ],
+  "T3": [
+   "results/moe_v3_cs/p316/attribution_perclass_vs_B.json",
+   "results/moe_v3_cs/p316/attribution_perclass_vs_controle.json"
+  ],
+  "T4": [
+   "results/moe_v3_cs/metiers_experts/metriques_controle_seed42.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_controle_seed123.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_controle_seed456.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_B_seed42.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_B_seed123.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_B_seed456.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_C_seed42.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_C_seed123.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_C_seed456.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_Cp_seed42.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_Cp_seed123.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_Cp_seed456.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_D_seed42.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_D_seed123.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_D_seed456.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_Dp_seed42.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_Dp_seed123.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_Dp_seed456.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_G_seed42.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_G_seed123.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_G_seed456.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_fused_CvetoB_seed42.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_fused_CvetoB_seed123.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_fused_CvetoB_seed456.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_fused_CpvetoB_seed42.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_fused_CpvetoB_seed123.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_fused_CpvetoB_seed456.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_fused_DvetoB_seed42.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_fused_DvetoB_seed123.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_fused_DvetoB_seed456.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_fused_DpvetoB_seed42.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_fused_DpvetoB_seed123.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_fused_DpvetoB_seed456.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_moe_v3cs_seed42.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_moe_v3cs_seed123.npz",
+   "results/moe_v3_cs/metiers_experts/metriques_moe_v3cs_seed456.npz",
+   "results/moe_v3_cs/metiers_experts/frag_{G,B,controle}_seed*.npy"
+  ],
+  "T5": [
+   "results/moe_v3_cs/p317_polyvalence/table_polyvalence.json"
+  ],
+  "T6": [
+   "BRATS:papers/paper3/versions/v3/NOTE_DECISION_V3.md",
+   "zenodo:22903668"
+  ]
+ },
+ "T1": {
+  "lignes": [
+   {
+    "poste": "Architecture",
+    "valeur": "ConvNeXt-V2-Base (ImageNet-22K) + UPerNet, pleine résolution 1024×2048, 19 classes, BF16 channels_last",
+    "source": "configs/experiment/pilot_fullres_G_blob.yaml"
+   },
+   {
+    "poste": "Loss G",
+    "valeur": "CE 0.5 (class_weights ISNS, ignore 255) + Dice 0.5 (smooth 1.0) + **blob Kofler 0.5** (eps 1.0, min_blob_pixels 0, ignore 255)",
+    "source": "configs/loss/ce_dice_blob.yaml"
+   },
+   {
+    "poste": "Référence B",
+    "valeur": "MÊME recette, loss ce_dice (CE 0,5 + Dice 0,5) — seule la loss change",
+    "source": "configs/loss/ce_dice.yaml"
+   },
+   {
+    "poste": "Entraînement",
+    "valeur": "160 époques, batch 2×accum 4 (effectif 8), AdamW lr 6e-05 wd 0.01, poly power 1.0, warmup 1 ep, bf16",
+    "source": "idem"
+   },
+   {
+    "poste": "Augmentation",
+    "valeur": "hflip p=0,5 appliqué par le DATASET sur image+label+paquetage d'instances (flip albumentations désactivé — alignement du glob blob) ; même distribution que B",
+    "source": "config G + src/losses/blob_lab.py"
+   },
+   {
+    "poste": "Seeds",
+    "valeur": "42, 123, 456 (3 seeds, résultats moyennés dans chaque réplicat bootstrap)",
+    "source": "résultat/p3_queue"
+   },
+   {
+    "poste": "Coût seed 42",
+    "valeur": "160/160 époques, 656 s/ep médian [655-666], VRAM 31.5 Go, train_loss final 0.3743, total 29.2 h",
+    "source": "results/p3_queue/pilot_fullres_G_blob_seed42.log"
+   },
+   {
+    "poste": "Coût seed 123",
+    "valeur": "160/160 époques, 656 s/ep médian [655-669], VRAM 31.5 Go, train_loss final 0.3735, total 29.2 h",
+    "source": "results/p3_queue/pilot_fullres_G_blob_seed123.log"
+   },
+   {
+    "poste": "Coût seed 456",
+    "valeur": "160/160 époques, 656 s/ep médian [655-669], VRAM 31.5 Go, train_loss final 0.3765, total 29.2 h",
+    "source": "results/p3_queue/pilot_fullres_G_blob_seed456.log"
+   },
+   {
+    "poste": "Coût du bras G",
+    "valeur": "≈ 87 h GPU (3 seeds × 160 époques)",
+    "source": "somme des logs"
+   },
+   {
+    "poste": "Pré-calcul blob",
+    "valeur": "paquetages .blob.npz (blob_glob/blob_counts/blob_csr) : +1 à 2 %/époque contre +870 s/époque pour le chemin naïf (CC CPU + 26 syncs/classe) ; cc3d 8-connexité 22,4 ms/image pleine résolution (16 classes, 118 instances) vs 59,7 ms scipy",
+    "source": "src/losses/blob_loss.py docstring, mesures 2026-09-17"
+   },
+   {
+    "poste": "Parité",
+    "valeur": "naïf ↔ pré-calculé verrouillée par tests/test_blob_loss.py ; 2975 paquetages régénérés bit-à-bit (vérifié 2026-09-26, commit 132f2e8) ; paquetages absents du disque au 2026-09-30, régénérables par scripts/precompute_blob_lab.py",
+    "source": "DEVLOG + commit 132f2e8"
+   },
+   {
+    "poste": "Évaluation",
+    "valeur": "holdout partagé first:500 de Cityscapes val, mIoU dataset-level cityscapesScripts (convention bit-identique, tests/test_official_miou.py), bootstrap apparié B=10 000 seed 20260618",
+    "source": "src/moe/bootstrap.py"
+   }
+  ],
+  "logs_par_seed": {
+   "42": {
+    "n_epochs": 160,
+    "train_loss_final": 0.3743,
+    "vram_max_gb": 31.5,
+    "s_epoch_med": 656.0,
+    "s_epoch_min": 655,
+    "s_epoch_max": 666,
+    "total_h": 29.150555555555556
+   },
+   "123": {
+    "n_epochs": 160,
+    "train_loss_final": 0.3735,
+    "vram_max_gb": 31.5,
+    "s_epoch_med": 656.0,
+    "s_epoch_min": 655,
+    "s_epoch_max": 669,
+    "total_h": 29.16861111111111
+   },
+   "456": {
+    "n_epochs": 160,
+    "train_loss_final": 0.3765,
+    "vram_max_gb": 31.5,
+    "s_epoch_med": 656.0,
+    "s_epoch_min": 655,
+    "s_epoch_max": 669,
+    "total_h": 29.156944444444445
+   }
+  }
+ },
+ "T2": {
+  "primaire": {
+   "point_G": 0.8126326378163825,
+   "point_B": 0.8109306379353374,
+   "ci_G": [
+    0.7981461208394375,
+    0.8243091208303275
+   ],
+   "ci_B": [
+    0.7969436279489335,
+    0.8220384182673419
+   ],
+   "delta": 0.001733357170015437,
+   "ci95": [
+    -0.0022934333939424512,
+    0.005540581312270137
+   ],
+   "p": 0.3952,
+   "holm": 0.7904,
+   "per_seed": {
+    "G": {
+     "42": 0.8129698982137215,
+     "123": 0.8129079352435913,
+     "456": 0.8120200799918348
+    },
+    "B": {
+     "42": 0.8142946533854425,
+     "123": 0.8086120082568196,
+     "456": 0.8098852521637498
+    }
+   }
+  },
+  "contexte_13bras": {
+   "classement": [
+    {
+     "bras": "D",
+     "delta": 0.0051756596529624055
+    },
+    {
+     "bras": "fused_DvetoB",
+     "delta": 0.004841043799263645
+    },
+    {
+     "bras": "fused_DpvetoB",
+     "delta": 0.004789959586350423
+    },
+    {
+     "bras": "Dp",
+     "delta": 0.004747205916483255
+    },
+    {
+     "bras": "moe_v3cs",
+     "delta": 0.0044936035659464135
+    },
+    {
+     "bras": "A",
+     "delta": 0.001147663240961716
+    },
+    {
+     "bras": "G",
+     "delta": 0.0009504892400433729
+    },
+    {
+     "bras": "fused_CvetoB",
+     "delta": 0.0006820618535579026
+    },
+    {
+     "bras": "C",
+     "delta": 0.0005851191370366271
+    },
+    {
+     "bras": "B",
+     "delta": -0.0007515106410017625
+    },
+    {
+     "bras": "fused_CpvetoB",
+     "delta": -0.001540121164347319
+    },
+    {
+     "bras": "Cp",
+     "delta": -0.0027774949843342167
+    }
+   ],
+   "points": {
+    "A": 0.8128298118173009,
+    "B": 0.8109306379353374,
+    "C": 0.8122672677133758,
+    "Cp": 0.8089046535920049,
+    "D": 0.8168578082293015,
+    "Dp": 0.8164293544928224,
+    "fused_CpvetoB": 0.8101420274119918,
+    "fused_CvetoB": 0.812364210429897,
+    "fused_DpvetoB": 0.8164721081626896,
+    "fused_DvetoB": 0.8165231923756028,
+    "G": 0.8126326378163825,
+    "controle": 0.8116821485763391,
+    "moe_v3cs": 0.8161757521422855
+   }
+  }
+ },
+ "T4_frag_classes": [
+  {
+   "classe": "car",
+   "G": 117.27066666666667,
+   "B": 67.90733333333333,
+   "controle": 57.419999999999995,
+   "delta": 49.363333333333344,
+   "ci95": [
+    46.4732,
+    52.19476666666666
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "pole",
+   "G": 176.42533333333333,
+   "B": 131.06133333333335,
+   "controle": 115.94333333333333,
+   "delta": 45.363999999999976,
+   "ci95": [
+    42.87731666666666,
+    47.77068333333334
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "vegetation",
+   "G": 107.65866666666666,
+   "B": 63.843999999999994,
+   "controle": 58.802,
+   "delta": 43.81466666666667,
+   "ci95": [
+    41.55323333333332,
+    46.087999999999994
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "road",
+   "G": 82.366,
+   "B": 43.76933333333333,
+   "controle": 47.077999999999996,
+   "delta": 38.59666666666667,
+   "ci95": [
+    36.321233333333325,
+    40.860749999999996
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "traffic sign",
+   "G": 92.30066666666666,
+   "B": 53.882666666666665,
+   "controle": 43.23866666666667,
+   "delta": 38.41799999999999,
+   "ci95": [
+    36.11858333333334,
+    40.67868333333333
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "building",
+   "G": 116.90933333333334,
+   "B": 84.43266666666666,
+   "controle": 75.40333333333334,
+   "delta": 32.476666666666674,
+   "ci95": [
+    29.566616666666665,
+    35.38405
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "sidewalk",
+   "G": 106.24933333333333,
+   "B": 75.40666666666665,
+   "controle": 64.604,
+   "delta": 30.842666666666673,
+   "ci95": [
+    28.71531666666668,
+    32.97070000000001
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "person",
+   "G": 53.185333333333325,
+   "B": 24.308666666666667,
+   "controle": 16.351333333333333,
+   "delta": 28.876666666666658,
+   "ci95": [
+    27.257233333333332,
+    30.46808333333333
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "sky",
+   "G": 27.743333333333336,
+   "B": 23.163999999999998,
+   "controle": 11.893333333333333,
+   "delta": 4.579333333333338,
+   "ci95": [
+    3.2033166666666664,
+    5.914683333333335
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "fence",
+   "G": 10.908000000000001,
+   "B": 8.165333333333333,
+   "controle": 4.884666666666667,
+   "delta": 2.7426666666666684,
+   "ci95": [
+    2.097966666666667,
+    3.4019999999999992
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "bicycle",
+   "G": 11.794666666666666,
+   "B": 9.590666666666666,
+   "controle": 6.152666666666666,
+   "delta": 2.2040000000000006,
+   "ci95": [
+    1.7473166666666653,
+    2.6713499999999994
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "rider",
+   "G": 4.142666666666667,
+   "B": 1.9553333333333331,
+   "controle": 1.8966666666666665,
+   "delta": 2.187333333333334,
+   "ci95": [
+    1.9979833333333328,
+    2.3820000000000006
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "traffic light",
+   "G": 6.886,
+   "B": 5.9993333333333325,
+   "controle": 4.584666666666667,
+   "delta": 0.8866666666666676,
+   "ci95": [
+    0.6493166666666653,
+    1.1260000000000003
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "truck",
+   "G": 0.5733333333333334,
+   "B": 0.332,
+   "controle": 0.332,
+   "delta": 0.24133333333333334,
+   "ci95": [
+    0.12799999999999995,
+    0.3786666666666667
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  },
+  {
+   "classe": "motorcycle",
+   "G": 0.6546666666666666,
+   "B": 0.6333333333333334,
+   "controle": 0.5733333333333334,
+   "delta": 0.021333333333333204,
+   "ci95": [
+    -0.03866666666666663,
+    0.08268333333333319
+   ],
+   "p": 0.494,
+   "holm19": 1.0
+  },
+  {
+   "classe": "train",
+   "G": 0.26399999999999996,
+   "B": 0.248,
+   "controle": 0.23399999999999999,
+   "delta": 0.01599999999999996,
+   "ci95": [
+    -0.014000000000000012,
+    0.04999999999999999
+   ],
+   "p": 0.3292,
+   "holm19": 1.0
+  },
+  {
+   "classe": "bus",
+   "G": 0.45599999999999996,
+   "B": 0.47266666666666673,
+   "controle": 0.4326666666666667,
+   "delta": -0.016666666666666774,
+   "ci95": [
+    -0.09933333333333327,
+    0.05533333333333329
+   ],
+   "p": 0.7028,
+   "holm19": 1.0
+  },
+  {
+   "classe": "wall",
+   "G": 7.154,
+   "B": 7.176666666666667,
+   "controle": 3.972,
+   "delta": -0.022666666666666835,
+   "ci95": [
+    -0.5366833333333346,
+    0.4939999999999998
+   ],
+   "p": 0.9496,
+   "holm19": 1.0
+  },
+  {
+   "classe": "terrain",
+   "G": 10.936,
+   "B": 12.775333333333334,
+   "controle": 5.467333333333333,
+   "delta": -1.8393333333333342,
+   "ci95": [
+    -2.5980166666666658,
+    -1.0626500000000003
+   ],
+   "p": 0.0,
+   "holm19": 0.0
+  }
+ ],
+ "T5": {
+  "profil_G": {
+   "n_endpoints": 36,
+   "mean_pct": 0.41933760683760696,
+   "median_pct": 0.32051282051282054,
+   "p10_pct": 0.08333333333333337,
+   "min_pct": 0.07692307692307687,
+   "max_pct": 1.0,
+   "mean_rang": 8.194444444444445,
+   "pire_rang": 13,
+   "meilleur_rang": 1,
+   "n_rang1": 7,
+   "n_dernier": 16,
+   "n_top_half": 14,
+   "n_bottom_half": 22,
+   "dommage_max_pt": -6.76258964226416,
+   "endpoint_dommage": "precision_ped_pixels",
+   "dommage_max_z": -1.0466771733594653,
+   "pic_max_pt": 3.434120821836417,
+   "endpoint_pic": "IoU_truck",
+   "pic_max_z": 1.9603169409936714,
+   "z_mean": -0.6161359795955159,
+   "n_gains_sig_brut": 4,
+   "n_pertes_sig_brut": 13,
+   "n_gains_sig_holm": 1,
+   "n_pertes_sig_holm": 12,
+   "gains_sig_brut": [
+    "IoU_pole",
+    "IoU_traffic light",
+    "IoU_sky",
+    "boundary_f1_3px"
+   ],
+   "pertes_sig_brut": [
+    "IoU_rider",
+    "rappel_strict_instances",
+    "precision_ped_pixels",
+    "instances_toutes_rappel",
+    "instances_toutes_det05",
+    "instances_individuelles_rappel",
+    "instances_individuelles_det05",
+    "instances_foule_rappel",
+    "instances_taille_T1_rappel",
+    "instances_taille_T1_det05",
+    "instances_taille_T2_rappel",
+    "instances_taille_T2_det05",
+    "instances_taille_T3_rappel"
+   ],
+   "gains_sig_holm": [
+    "boundary_f1_3px"
+   ],
+   "pertes_sig_holm": [
+    "rappel_strict_instances",
+    "precision_ped_pixels",
+    "instances_toutes_rappel",
+    "instances_toutes_det05",
+    "instances_individuelles_rappel",
+    "instances_individuelles_det05",
+    "instances_foule_rappel",
+    "instances_taille_T1_rappel",
+    "instances_taille_T1_det05",
+    "instances_taille_T2_rappel",
+    "instances_taille_T2_det05",
+    "instances_taille_T3_rappel"
+   ],
+   "delta_miou_pt": 0.09430770643868991,
+   "p_miou": 0.6592,
+   "holm_miou": 1.0,
+   "prix_pt_par_pt_miou": -71.70770976877236,
+   "n_classes_perte_0.5pt": 3,
+   "n_classes_perte_1pt": 3,
+   "n_classes_gain_0.5pt": 2,
+   "classes_perte_0.5pt": [
+    "rider",
+    "bus",
+    "train"
+   ],
+   "n_endpoints_dommage_1pt": 16,
+   "n_endpoints_dommage_2pt": 10,
+   "n_endpoints_z_inf_m1": 17,
+   "n_endpoints_z_inf_m2": 12,
+   "par_famille": {
+    "IoU par classe": {
+     "mean_pct": 0.5951417004048584,
+     "delta_moyen_pt": 0.09504892400433787,
+     "n_endpoints": 19
+    },
+    "contours": {
+     "mean_pct": 0.9166666666666667,
+     "delta_moyen_pt": 0.3111555417378731,
+     "n_endpoints": 2
+    },
+    "global": {
+     "mean_pct": 0.5384615384615384,
+     "delta_moyen_pt": 0.09430770643868991,
+     "n_endpoints": 1
+    },
+    "instances par strate": {
+     "mean_pct": 0.08333333333333337,
+     "delta_moyen_pt": -2.685210857113006,
+     "n_endpoints": 12
+    },
+    "piéton": {
+     "mean_pct": 0.20833333333333337,
+     "delta_moyen_pt": -5.08969499436534,
+     "n_endpoints": 2
+    }
+   },
+   "pire_famille": "piéton",
+   "pire_famille_delta_moyen_pt": -5.08969499436534,
+   "meilleure_famille": "contours",
+   "meilleure_famille_delta_moyen_pt": 0.3111555417378731,
+   "n_familles_negatives": 2,
+   "min_pct_par_famille": {
+    "instances par strate": 0.08333333333333337,
+    "contours": 0.8333333333333334,
+    "piéton": 0.08333333333333337,
+    "global": 0.5384615384615384,
+    "IoU par classe": 0.07692307692307687
+   },
+   "domine_par": [
+    "B",
+    "C",
+    "fused_CvetoB",
+    "fused_DpvetoB",
+    "controle",
+    "moe_v3cs"
+   ],
+   "pareto_non_dominé": false,
+   "couverture_complète": true
+  },
+  "classement": [
+   "moe_v3cs",
+   "fused_CvetoB",
+   "fused_CpvetoB",
+   "C",
+   "B",
+   "fused_DpvetoB",
+   "Cp",
+   "G",
+   "fused_DvetoB",
+   "Dp",
+   "D"
+  ]
+ },
+ "T6": {
+  "g_seul_dice": -0.00376,
+  "moe_v3_dice": 0.00566,
+  "n_bras_brats": 29,
+  "doi_moe_brats": "10.5281/zenodo.22903668",
+  "sources": [
+   "BRATS:papers/paper3/versions/v3/NOTE_DECISION_V3.md:46,52,115",
+   "BRATS:papers/paper3/tables/v3_vs_consensus.md:38",
+   "zenodo:22903668:abstract"
+  ]
+ },
+ "figures_autocontrole": {
+  "F1_forest_perclass_GvsB": {
+   "n_rows": 19,
+   "n_ci_sig": 7,
+   "n_sig": 3,
+   "xlim": [
+    -9.844450685156014,
+    10.644450685156013
+   ],
+   "classes_ordre": [
+    "truck",
+    "traffic light",
+    "pole",
+    "bicycle",
+    "motorcycle",
+    "traffic sign",
+    "person",
+    "bus",
+    "terrain",
+    "car",
+    "vegetation",
+    "sky",
+    "building",
+    "road",
+    "sidewalk",
+    "wall",
+    "fence",
+    "rider",
+    "train"
+   ],
+   "chemin": "papers/paper4/figures/F1_forest_perclass_GvsB.png",
+   "octets": 179459,
+   "png_px": [
+    1676,
+    1685
+   ]
+  },
+  "F2_tradeoff": {
+   "n_rows_gauche": 6,
+   "n_rows_milieu": 7,
+   "n_rows_droite": 10,
+   "classes_panneau_C": [
+    "car",
+    "pole",
+    "vegetation",
+    "road",
+    "traffic sign",
+    "building",
+    "sidewalk",
+    "person",
+    "traffic light",
+    "terrain"
+   ],
+   "frag_n_classes": 19,
+   "frag_n_hausse_vs_B": 16,
+   "frag_n_hausse_vs_controle": 19,
+   "suptitre_frag": "16/19 vs B, 19/19 vs controle",
+   "chemin": "papers/paper4/figures/F2_tradeoff.png",
+   "octets": 286399,
+   "png_px": [
+    1100,
+    3019
+   ]
+  },
+  "F3_polyvalence_G": {
+   "n_points": 11,
+   "x_G": 41.933760683760696,
+   "y_G": -6.76258964226416,
+   "x_moe": 60.43447293447293,
+   "y_moe": -0.5291005291005235,
+   "chemin": "papers/paper4/figures/F3_polyvalence_G.png",
+   "octets": 169808,
+   "png_px": [
+    1199,
+    1749
+   ]
+  }
+ },
+ "sanity": [
+  {
+   "check": "frag_classes somme == frag npy (G)",
+   "ok": true,
+   "detail": "(G) somme des 19 classes bit-à-bit égale au count total (mean 933.9/image)"
+  },
+  {
+   "check": "frag_classes somme == frag npy (B)",
+   "ok": true,
+   "detail": "(B) somme des 19 classes bit-à-bit égale au count total (mean 615.1/image)"
+  },
+  {
+   "check": "frag_classes somme == frag npy (controle)",
+   "ok": true,
+   "detail": "(controle) somme des 19 classes bit-à-bit égale au count total (mean 519.3/image)"
+  },
+  {
+   "check": "P3.16 G_vs_controle reproduit",
+   "ok": true,
+   "detail": "19 métriques bit-à-bit (delta/IC/p, mêmes index bootstrap)"
+  },
+  {
+   "check": "harness P3.10 points G/B (tolérance 1e-4, 2 forwards)",
+   "ok": true,
+   "detail": "npz G=0.8126227 vs harness 0.8126326 (écart 9.9e-06) ; B écart 4.1e-05 — non-déterminisme forward, cf P3.17 sanity 4,1e-3 pt"
+  },
+  {
+   "check": "harness P3.10 primaire G−B (tolérance)",
+   "ok": true,
+   "detail": "npz Δ=+0.1733pt p=0.3952 vs harness Δ=+0.1702pt p=0.4032 — même verdict (ns)"
+  },
+  {
+   "check": "P3.14 master G_vs_controle (tolérance)",
+   "ok": true,
+   "detail": "npz Δ=+0.0943pt p=0.6592 vs P3.14 Δ=+0.0950pt p=0.6552"
+  },
+  {
+   "check": "mIoU seed 42 G vs harness (tolérance)",
+   "ok": true,
+   "detail": "npz 0.8129533 vs harness 0.8129699 (écart 1.7e-05)"
+  },
+  {
+   "check": "mIoU seed 123 G vs harness (tolérance)",
+   "ok": true,
+   "detail": "npz 0.8128984 vs harness 0.8129079 (écart 9.5e-06)"
+  },
+  {
+   "check": "mIoU seed 456 G vs harness (tolérance)",
+   "ok": true,
+   "detail": "npz 0.8120164 vs harness 0.8120201 (écart 3.7e-06)"
+  },
+  {
+   "check": "fragments controle = P3.16 (mêmes npy)",
+   "ok": true,
+   "detail": "controle=519.26 vs P3.16 519.26"
+  },
+  {
+   "check": "frag 16/19 classes en hausse vs B",
+   "ok": true,
+   "detail": "16/19 hausses vs B, 19/19 vs contrôle, 14 Holm-significatives ; ne montent pas vs B : bus -0.0, wall -0.0, terrain -1.8"
+  },
+  {
+   "check": "frag seule baisse matérielle = terrain",
+   "ok": true,
+   "detail": "baisses Holm-significatives : ['terrain']"
+  },
+  {
+   "check": "F1 19 classes",
+   "ok": true,
+   "detail": "n_rows=19"
+  },
+  {
+   "check": "F2 panneaux 6+7+10",
+   "ok": true,
+   "detail": "6+7+10"
+  },
+  {
+   "check": "F3 11 bras",
+   "ok": true,
+   "detail": "n_points=11"
+  }
+ ]
+}

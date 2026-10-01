@@ -1,0 +1,22 @@
+# @package loss
+# Variant G (BlobLoss β=0.5) : recette Baseline B (CE+Dice) + terme blob de Kofler (IPMI 2023).
+# Miroir exact du bras G de BRATS (plan src/moe/PLAN_TRANSFERT_BRATS_V3.md §2.1, décision
+# Guillaume 2026-09-17) : L = L_seg + β·L_blob avec β=0.5 — le papier pose α:β = 2:1, et
+# L_seg (CE 0.5 + Dice 0.5) pèse 1.0 comme la loss région nnU-Net de BRATS. eps=1.0 =
+# convention nnU-Net, gardée du port RegionBlobLoss.
+
+type: composite
+components:
+  - type: cross_entropy
+    weight: 0.5
+    class_weights: isns
+    ignore_index: 255
+  - type: dice
+    weight: 0.5
+    smooth: 1.0
+    ignore_index: 255
+  - type: blob
+    weight: 0.5
+    eps: 1.0
+    ignore_index: 255
+    min_blob_pixels: 0
