@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: >-
   If you use this work, please cite its Zenodo deposit using the metadata below.
-  This is version v1.0.0; the concept DOI is added once Zenodo has assigned it.
+  The concept DOI always resolves to the latest version.
 title: >-
   Equal Weight per Instance Does Not Pay Alone: A Blob-Loss Auxiliary on Full-Resolution Cityscapes Buys Thin-Object IoU with Pedestrian Recall, and Only Pays as an Expert of a Mixture-of-Experts
 abstract: >-
@@ -61,13 +61,16 @@ type: dataset
 version: v1.0.0
 date-released: "2026-10-01"
 license: CC-BY-4.0
-doi: 10.5281/zenodo.23083560
+doi: 10.5281/zenodo.23083559
 authors:
   - family-names: Cassez
     given-names: Guillaume
     affiliation: Independent researcher
     orcid: "https://orcid.org/0009-0007-0987-3931"
 identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23083559
+    description: Concept DOI (resolves to all versions)
   - type: doi
     value: 10.5281/zenodo.23083560
     description: Version DOI (v1.0.0)
