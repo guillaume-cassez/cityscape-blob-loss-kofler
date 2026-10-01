@@ -13,7 +13,9 @@ Premier dépôt public du paper 4 du programme Cityscapes (blob loss de Kofler, 
 - Robustesse : second forward GPU indépendant des mêmes checkpoints,
   Δ = +0.173 pt, p = 0.3952 — même verdict, écart ≤ 0,01 pt.
 - Tables T1-T6 (`tables/`), figures F1-F3 (`figures/`), diagnostic de fragmentation par classe
-  inédit (×1,52, hausse dans 18 classes sur 19, person ×2,2) qui **contredit** l'hypothèse de
+  inédit (×1.52, hausse dans 16 classes sur 19 vs B apparié
+  dont 14 Holm-significatives, 19 sur 19 vs le bras
+  contrôle, person ×2.2) qui **contredit** l'hypothèse de
   compaction initialement envisagée — le papier rapporte ce que montrent les tables (§6.4).
 - Code : port exact de l'algèbre de Kofler (eq. 1) au régime softmax exclusif, avec packs
   d'instances précalculés (`src/losses/blob_loss.py`, `src/losses/blob_lab.py`), parité
