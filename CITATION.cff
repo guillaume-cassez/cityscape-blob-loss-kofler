@@ -60,8 +60,8 @@ abstract: >-
   of a mixture** while null-or-harmful alone. (5) Public release of code,
   configs, tables, figures and regeneration scripts. ---
 type: dataset
-version: v1.2.0
-date-released: "2026-10-04"
+version: v1.2.1
+date-released: "2026-10-05"
 license: CC-BY-4.0
 doi: 10.5281/zenodo.23083559
 authors:
@@ -77,8 +77,8 @@ identifiers:
     value: 10.5281/zenodo.23083559
     description: Concept DOI (resolves to all versions)
   - type: doi
-    value: 10.5281/zenodo.23146634
-    description: Version DOI (v1.2.0)
+    value: 10.5281/zenodo.23147260
+    description: Version DOI (v1.2.1)
 repository-code: "https://github.com/guillaume-cassez/cityscape-blob-loss-kofler"
 url: "https://guillaume-cassez.fr/voiture-autonome/"
 keywords:
