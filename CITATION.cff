@@ -37,13 +37,15 @@ abstract: >-
   probability regime: on BRATS 2023 (region-based sigmoid, MedNeXt, nnU-Net
   recipe, 5-fold CV, n = 1 196), the blob arm alone scored **−0.00376 Dice**
   vs baseline, yet as **expert 3 of the winning MoE-V3** it contributed
-  **+0.00566 Dice, first of 29 arms** [DOI 10.5281/zenodo.22903668]. The
-  Cityscapes companion mixture **MoE-V3-CS** (four experts initialised from B,
-  D, Dp, G; top-2 patch-wise gate) tells the same story: it absorbs G's
-  thin-object speciality — small-instance recall T1 +0.80 (significant),
-  traffic light not degraded — without inheriting its damage (maximal damage
-  −0.53 pt; ΔmIoU +0.45 pt, p = 0.0066 vs its paired control).
-  **Contributions.** (1) A pre-registered **null primary** for
+  **+0.00566 Dice, first of 29 arms** [DOI 10.5281/zenodo.22903668]. On the
+  Cityscapes program plateau, the expert-mixture arm initialised from these
+  specialists (MoE-V3-CS, master table P3.14) points the same way, as context:
+  ΔmIoU +0.45 pt [+0.11 ; +0.82], p = 0.0066 vs its recipe-paired control,
+  maximal damage −0.53 pt, small-instance recall T1 +0.80, traffic light not
+  degraded — the profile of an arm that puts G's thin-object speciality to use
+  without carrying its damage. The dedicated analysis of that mixture arm
+  (routing diagnostics, multiplicity families) is not the subject of this
+  paper. **Contributions.** (1) A pre-registered **null primary** for
   equal-weight-per-instance auxiliary loss in full-resolution
   exclusive-softmax segmentation, reported as such. (2) A complete **trade-off
   diagnostic**: per-class IoU, seven business-metric families on pedestrian
@@ -58,8 +60,8 @@ abstract: >-
   of a mixture** while null-or-harmful alone. (5) Public release of code,
   configs, tables, figures and regeneration scripts. ---
 type: dataset
-version: v1.1.0
-date-released: "2026-10-01"
+version: v1.2.0
+date-released: "2026-10-04"
 license: CC-BY-4.0
 doi: 10.5281/zenodo.23083559
 authors:
@@ -67,13 +69,16 @@ authors:
     given-names: Guillaume
     affiliation: Independent researcher
     orcid: "https://orcid.org/0009-0007-0987-3931"
+  - family-names: Larnier
+    given-names: Stanislas
+    affiliation: Independent researcher
 identifiers:
   - type: doi
     value: 10.5281/zenodo.23083559
     description: Concept DOI (resolves to all versions)
   - type: doi
-    value: 10.5281/zenodo.23085640
-    description: Version DOI (v1.1.0)
+    value: 10.5281/zenodo.23146634
+    description: Version DOI (v1.2.0)
 repository-code: "https://github.com/guillaume-cassez/cityscape-blob-loss-kofler"
 url: "https://guillaume-cassez.fr/voiture-autonome/"
 keywords:

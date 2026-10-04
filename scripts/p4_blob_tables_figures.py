@@ -88,6 +88,47 @@ OUT_TABLES = REPO / "papers/paper4/tables"
 OUT_FIGS = REPO / "papers/paper4/figures"
 OUT_DISCORD = REPO / "discord_out"
 
+# --------------------------------------------------------------------------- #
+# TAILLE IMPRIMÉE — récidive du 2026-10-04 (5ᵉ passage sur la mise en page)
+#
+# Même cause que sur paper3, mesurée sur le PDF livré (paper_fr.pdf md5
+# 73d8114b… / paper.pdf) : les figures étaient dessinées à 9-17 in de large
+# puis réduites à \linewidth = 515,6 pt = 7,16 in par \includegraphics, ce qui
+# multipliait chaque fontsize du code par l'échelle de placement — mesurée à
+# 0,426 pour F2_tradeoff (51 textes imprimés sous 6,5 pt, minimum 3,80 pt),
+# 0,696 pour F3_polyvalence_G et 0,787 pour F1_forest_perclass.
+#
+# Désormais TOUTES les figures sont dessinées À LA LARGEUR IMPRIMÉE : échelle
+# 1,000, et chaque fontsize du code est la taille réelle sur le papier. Le
+# gate verifier_taille_imprimee() re-mesure l'échelle effective sur la tight
+# bbox et bloque sous POLICE_MIN_IMPRIMEE_PT (6,5 pt = le \scriptsize des
+# tableaux les plus denses du papier).
+from fig_overlap_gate import LARGEUR_IMPRIMEE_IN as L  # noqa: E402
+
+FZ_TICK = 6.8      # ticks, légendes, annotations courtes (plancher 6,5 pt
+                   # IMPRIMÉS : 6,8 laisse la marge quand l'encre + le pad de
+                   # savefig font placer la figure à 0,98 plutôt qu'à 1,000)
+FZ_LAB = 7.2       # xlabel / ylabel
+FZ_TITLE = 7.8     # titres de panneaux
+FZ_SUPT = 8.4      # suptitle
+FZ_ANN = 7.4       # annotations mises en avant (G, MoE-V3-CS)
+
+
+def classe_court(cl: str) -> str:
+    """Nom de classe COURT : la glose française seule en FR (« feu tricolore »),
+    le nom anglais canonique en EN. `classe_label` (les DEUX, « feu tricolore
+    (traffic light) », 29 caractères) reste employé dans F1, qui est un panneau
+    unique en pleine largeur.
+
+    Pourquoi (mesure du 2026-10-04) : F2_tradeoff porte 3 panneaux ; une fois
+    dessinée à la largeur imprimée chacun fait 2,39 in, et un tick label de
+    29 caractères à 6,6 pt en mange 1,33 in — il ne resterait que 1,06 in pour
+    tracer l'intervalle de confiance. La glose bilingue est une redite : F1,
+    une page plus tôt, porte les 19 classes dans les deux langues, et les
+    tables du manuscrit (§6.2, §6.4) utilisent les noms anglais. Aucun chiffre
+    n'est modifié."""
+    return CL_FR[cl] if LANG == "fr" else cl
+
 CLASSES_19 = ["road", "sidewalk", "building", "wall", "fence", "pole", "traffic light",
               "traffic sign", "vegetation", "terrain", "sky", "person", "rider", "car",
               "truck", "bus", "train", "motorcycle", "bicycle"]
@@ -108,6 +149,115 @@ LABEL_COURT = {"B": "B", "C": "C", "Cp": "Cp", "D": "D", "Dp": "Dp", "G": "G",
                "fused_CvetoB": "C⊘B", "fused_CpvetoB": "Cp⊘B",
                "fused_DvetoB": "D⊘B", "fused_DpvetoB": "Dp⊘B",
                "moe_v3cs": "MoE-V3-CS", "controle": "contrôle", "A": "A"}
+
+# --------------------------------------------------------------------------- i18n
+# Défaut n°3 du contrôle visuel du 2026-10-01 : les figures embarquaient titres, axes,
+# légendes et gloses en FRANÇAIS y compris dans le manuscrit ANGLAIS (paper.md). Même
+# correctif à la cause que pour paper3 : tout le CHROME d'auteur passe par T() (langue
+# courante) ; les VALEURS numériques restent issues des expressions d'origine, donc
+# identiques en FR et EN (discipline anti-Piège-2 du docstring). Les identifiants de
+# métriques snake_case (`rappel_strict_instances`…) et les codes de bras restent tels
+# quels : le manuscrit EN les affiche déjà verbatim dans ses tables.
+LANG = "fr"
+
+
+def set_lang(lang: str) -> None:
+    global LANG
+    if lang not in ("fr", "en"):
+        raise ValueError(f"langue inconnue : {lang}")
+    LANG = lang
+
+
+def classe_label(cl: str) -> str:
+    """Nom de classe Cityscapes : en FR on ajoute la glose française (camion), en EN le
+    nom anglais canonique suffit (c'est déjà celui des tables du manuscrit)."""
+    return f"{cl} ({CL_FR[cl]})" if LANG == "fr" else cl
+
+
+def label_court(a: str) -> str:
+    """Étiquette courte de bras ; seul `contrôle` est français, traduit en `control`."""
+    lab = LABEL_COURT.get(a, a)
+    return lab if LANG == "fr" else lab.replace("contrôle", "control")
+
+
+# Gloses des métriques de rappel (panneau B de F2) — chrome, donc bilingue.
+LIBB = {
+    "rappel_strict_instances": {"fr": "rappel strict (toutes instances)",
+                                "en": "strict recall (all instances)"},
+    "instances_toutes_rappel": {"fr": "rappel toutes", "en": "recall all"},
+    "instances_individuelles_rappel": {"fr": "rappel individuelles", "en": "recall individual"},
+    "instances_foule_rappel": {"fr": "rappel foule (cachés)", "en": "recall crowd (occluded)"},
+    "instances_taille_T1_rappel": {"fr": "rappel petits T1", "en": "recall small T1"},
+    "instances_taille_T2_rappel": {"fr": "rappel moyens T2", "en": "recall medium T2"},
+    "instances_taille_T3_rappel": {"fr": "rappel grands T3", "en": "recall large T3"},
+}
+
+
+def libB(met: str) -> str:
+    return LIBB[met][LANG]
+
+
+TR: dict[str, dict[str, str]] = {
+    "F1.xlabel": {"fr": "Δ IoU (points) — G (CE+Dice+0,5·blob Kofler) − B (CE+Dice)",
+                  "en": "Δ IoU (points) — G (CE+Dice+0.5·blob Kofler) − B (CE+Dice)"},
+    "F1.title": {"fr": "F1 — IoU par classe, paire appariée G vs B (160 époques, seule la loss change)\n"
+                       "bootstrap apparié B=10 000, 500 images, IC95 ; couleur = IC excluant 0 "
+                       "(gris = IC croisant 0) ; * = Holm par bras < 0,05",
+                 "en": "F1 — Per-class IoU, paired G vs B (160 epochs, only the loss changes)\n"
+                       "paired bootstrap B=10,000, 500 images, 95% CI; colour = CI excluding 0 "
+                       "(grey = CI crossing 0); * = per-arm Holm < 0.05"},
+    "F2.titreA": {"fr": "Ce que le blob ACHÈTE — IoU pixel des objets fins (vs B)\n"
+                        "(IC excluant 0 ; * = Holm par bras < 0,05)",
+                  "en": "What the blob BUYS — pixel IoU of fine objects (vs B)\n"
+                        "(CI excluding 0; * = per-arm Holm < 0.05)"},
+    "F2.xlabelA": {"fr": "Δ IoU (points), IC95 — * = Holm < 0,05",
+                   "en": "Δ IoU (points), 95% CI — * = Holm < 0.05"},
+    "F2.titreB": {"fr": "Ce que le blob PAIE — rappel instance piéton (vs B)",
+                  "en": "What the blob PAYS — pedestrian instance recall (vs B)"},
+    "F2.xlabelB": {"fr": "Δ rappel (points), IC95 — * = Holm < 0,05",
+                   "en": "Δ recall (points), 95% CI — * = Holm < 0.05"},
+    "F2.titreC": {"fr": "La facture TOPOLOGIE — composantes connexes par classe (vs B)",
+                  "en": "The TOPOLOGY bill — connected components per class (vs B)"},
+    "F2.xlabelC": {"fr": "Δ nb composantes/image, IC95 — * = Holm(19) < 0,05",
+                   "en": "Δ count components/image, 95% CI — * = Holm(19) < 0.05"},
+    "F2.suptitle": {"fr": "F2 — Le trade-off du blob loss seul : IoU pixel des objets fins ↑ contre "
+                          "rappel instance piéton ↓ — et la facture topologie : plus de composantes "
+                          "connexes dans {n_hausse} classes sur {n_cls} vs B apparié ({n_ctrl} sur "
+                          "{n_cls} vs contrôle, piétons ×2,2)\n"
+                          "G vs B apparié (160 époques, seule la loss change) ; gauche : attribution "
+                          "per-class P3.16 · milieu : métriques instance régénérées · droite : "
+                          "décomposition par classe des composantes connexes (mesure inédite, preds P3.16)",
+                    "en": "F2 — The trade-off of the blob loss alone: pixel IoU of fine objects ↑ "
+                          "against pedestrian instance recall ↓ — and the topology bill: more "
+                          "connected components in {n_hausse} of {n_cls} classes vs paired B "
+                          "({n_ctrl} of {n_cls} vs control, pedestrians ×2.2)\n"
+                          "G vs paired B (160 epochs, only the loss changes); left: per-class "
+                          "attribution P3.16 · middle: regenerated instance metrics · right: "
+                          "per-class decomposition of connected components (novel measure, P3.16 preds)"},
+    "F3.annotateG": {"fr": "G · blob loss seul\n(dominé, dommage {y} pt,\n#1 sur {nr}/36 endpoints)",
+                     "en": "G · blob loss alone\n(dominated, damage {y} pt,\n#1 on {nr}/36 endpoints)"},
+    "F3.annotateMoE": {"fr": "MoE-V3-CS\n(seul bras T0,\ndommage {y} pt)",
+                       "en": "MoE-V3-CS\n(only T0 arm,\ndamage {y} pt)"},
+    "F3.seuil": {"fr": "seuil T0 : aucun endpoint > 1 pt sous la référence",
+                 "en": "T0 threshold: no endpoint > 1 pt below the reference"},
+    "F3.xlabel": {"fr": "percentile moyen sur 36 endpoints (%) — « bon partout » →",
+                  "en": "mean percentile over 36 endpoints (%) — 'good everywhere' →"},
+    "F3.ylabel": {"fr": "dommage maximal (pt) — pire Δ d'un endpoint vs contrôle",
+                  "en": "maximal damage (pt) — worst Δ of an endpoint vs control"},
+    "F3.title": {"fr": "F3 — Position de G dans le classement de polyvalence P3.17 (13 bras, 36 endpoints)\n"
+                       "G = spécialiste dominé (percentile moyen {mp} · pire rang {pr}/13 · dommage max "
+                       "{dm} pt sur {ep}) ;\nle seul bras dans la zone T0 est le mélange d'experts "
+                       "initialisé depuis ces bras (MoE-V3-CS, §7.2)",
+                 "en": "F3 — Position of G in the P3.17 versatility ranking (13 arms, 36 endpoints)\n"
+                       "G = dominated specialist (mean percentile {mp} · worst rank {pr}/13 · max damage "
+                       "{dm} pt on {ep});\nthe only arm in the T0 zone is the expert-initialised mixture "
+                       "built from these arms (MoE-V3-CS, §7.2)"},
+}
+
+
+def T(key: str, **kw) -> str:
+    return TR[key][LANG].format(**kw)
+
 
 METIERS_ORDER = ["mIoU", "IoU_person", "IoU_rider",
                  "boundary_f1_3px", "boundary_f1_3px_pieds",
@@ -591,6 +741,21 @@ def t3_perclass() -> tuple[str, str, dict]:
     return "\n".join(md) + "\n", csv_txt, data
 
 
+def build_frag_rows(frag_cls: dict):
+    """Construit les lignes de fragmentation par classe (tri par Δ décroissant, Holm 19 classes)
+    depuis l'artefact brut `frag_cls`. Facteur commun entre t4_metiers (tables) et le mode
+    --figures-only (figures seules) : la même construction déterministe, aucune duplication."""
+    rows = sorted(frag_cls.items(), key=lambda kv: -kv[1]["pairwise"]["G_vs_B"]["delta"])
+    raw_p = {nom: t["pairwise"]["G_vs_B"]["p_two_sided"] for nom, t in rows}
+    h19 = holm(raw_p)
+    frag_rows = [{"classe": nom, "G": t["point"]["G"], "B": t["point"]["B"],
+                  "controle": t["point"]["controle"], "delta": t["pairwise"]["G_vs_B"]["delta"],
+                  "ci95": t["pairwise"]["G_vs_B"]["ci95"],
+                  "p": t["pairwise"]["G_vs_B"]["p_two_sided"], "holm19": h19[nom]}
+                 for nom, t in rows]
+    return rows, h19, frag_rows
+
+
 def t4_metiers(tables: dict, p316_holm: dict, frag_cls: dict) -> tuple[str, str, dict]:
     md = ["# T4 — Métriques officielles et métier, paires du papier (RÉGÉNÉRÉ depuis les npz par image)", "",
           "Protocole identique P3.15/P3.16 (mêmes npz, mêmes masques 12 bras, mêmes index bootstrap B=10 000 seed 20260618). "
@@ -631,10 +796,7 @@ def t4_metiers(tables: dict, p316_holm: dict, frag_cls: dict) -> tuple[str, str,
                          f"{gc['ci95'][1]*u:+.4f}", f"{gc['p_two_sided']:.6g}",
                          f"{gc['p_holm']:.6g}", h316s])
     # ---- diagnostic NEUF : fragmentation par classe (composantes connexes, G vs B) ----
-    rows = sorted(frag_cls.items(), key=lambda kv: -kv[1]["pairwise"]["G_vs_B"]["delta"])
-    raw_p = {nom: t["pairwise"]["G_vs_B"]["p_two_sided"] for nom, t in rows}
-    h19 = holm(raw_p)
-    frag_rows = []
+    rows, h19, frag_rows = build_frag_rows(frag_cls)
     md += ["", "## Fragmentation par classe — composantes connexes 8-connexes par image (diagnostic neuf, G vs B)", "",
            "Mesure inédite du programme (P3.16 n'avait les fragments que pour contrôle/MoE). "
            "Holm sur la famille des 19 classes. **gras** = Holm < 0,05.", "",
@@ -646,9 +808,6 @@ def t4_metiers(tables: dict, p316_holm: dict, frag_cls: dict) -> tuple[str, str,
                   f"{t['point']['controle']:.1f} | {b}{pw['delta']:+.1f}{b} "
                   f"[{pw['ci95'][0]:+.1f} ; {pw['ci95'][1]:+.1f}] | {pw['p_two_sided']:.4g} | "
                   f"{h19[nom]:.4g} |")
-        frag_rows.append({"classe": nom, "G": t["point"]["G"], "B": t["point"]["B"],
-                          "controle": t["point"]["controle"], "delta": pw["delta"],
-                          "ci95": pw["ci95"], "p": pw["p_two_sided"], "holm19": h19[nom]})
         csv_rows.append([f"fragments_{nom}", t["n_images"], f"{t['point']['G']:.4f}",
                          f"{t['point']['B']:.4f}", f"{t['point']['controle']:.4f}",
                          f"{pw['delta']:+.4f}", f"{pw['ci95'][0]:+.4f}", f"{pw['ci95'][1]:+.4f}",
@@ -784,27 +943,41 @@ def _forest_row(ax, y, d, lo, hi, sig, couleur, alpha_ns=0.5):
 
 def f1_forest_perclass(data_t3: dict) -> dict:
     rows = sorted(data_t3["vs_B"].values(), key=lambda r: -r["delta_pt"])
-    fig, ax = plt.subplots(figsize=(9.2, 0.42 * len(rows) + 2.0))
+    # Dessinée À LA LARGEUR IMPRIMÉE ; hauteur = l'empreinte mesurée sur le PDF
+    # du 2026-10-03 (515,6 × 558,0 pt = 7,16 × 7,75 in).
+    fig, ax = plt.subplots(figsize=(L, 0.33 * len(rows) + 1.28))
     ymax = 0.0
     for y, r in enumerate(rows):
         ci_sig = r["ci_lo_pt"] > 0 or r["ci_hi_pt"] < 0       # convention P3.16 « significant »
         holm_sig = r["p_holm_arm"] < 0.05                     # Holm par bras (19 classes)
         c = ("#2e7d32" if r["delta_pt"] > 0 else "#c62828") if ci_sig else "#757575"
         _forest_row(ax, y, r["delta_pt"], r["ci_lo_pt"], r["ci_hi_pt"], ci_sig, c)
-        ax.text(max(r["ci_hi_pt"], r["delta_pt"]) + 0.18, y,
+        # Libellé HORS de l'intervalle de confiance : à droite du cap haut si
+        # Δ > 0, à gauche du cap bas sinon. Posé à max(ci_hi, Δ)+0.18 (avant le
+        # 2026-10-03), les lignes négatives avaient leur libellé couché sur la
+        # ligne verticale du zéro.
+        if r["delta_pt"] > 0:
+            lx, ha = r["ci_hi_pt"] + 0.18, "left"
+        else:
+            lx, ha = r["ci_lo_pt"] - 0.18, "right"
+        ax.text(lx, y,
                 f"{r['delta_pt']:+.2f}" + (" *" if holm_sig else ""),
-                va="center", fontsize=8.6, color=c if ci_sig else "#555555")
+                va="center", ha=ha, fontsize=FZ_TICK, color=c if ci_sig else "#555555")
         ymax = max(ymax, abs(r["ci_lo_pt"]), abs(r["ci_hi_pt"]))
     ax.set_yticks(range(len(rows)))
-    ax.set_yticklabels([f"{r['classe']} ({CL_FR[r['classe']]})" for r in rows], fontsize=9)
+    ax.set_yticklabels([classe_label(r['classe']) for r in rows], fontsize=FZ_TICK)
     ax.axvline(0, color="black", lw=1.0)
-    ax.set_xlim(-(ymax * 1.15 + 0.3), ymax * 1.15 + 1.1)
+    ax.set_xlim(-(ymax * 1.15 + 1.6), ymax * 1.15 + 1.1)
     ax.invert_yaxis()
-    ax.set_xlabel("Δ IoU (points) — G (CE+Dice+0,5·blob Kofler) − B (CE+Dice)", fontsize=10)
-    ax.set_title("F1 — IoU par classe, paire appariée G vs B (160 époques, seule la loss change)\n"
-                 "bootstrap apparié B=10 000, 500 images, IC95 ; couleur = IC excluant 0 (gris = IC croisant 0) ; "
-                 "* = Holm par bras < 0,05", fontsize=10.5, pad=10)
+    ax.set_xlabel(T("F1.xlabel"), fontsize=FZ_LAB)
+    ax.set_title(T("F1.title"), fontsize=FZ_TITLE, pad=6)
     ax.grid(axis="x", alpha=0.25, lw=0.6)
+    fig.tight_layout()
+    # Titre RECOUPÉ sur la largeur réelle autour de son centre (centré sur les
+    # AXES, pas le canvas) : mesuré le 2026-10-03, il débordait de 27 px à
+    # droite (encre à x1=946 sur un canvas de 919).
+    from fig_overlap_gate import titre_cadre  # noqa: PLC0415
+    ax.set_title(titre_cadre(fig, ax, T("F1.title"), FZ_TITLE), fontsize=FZ_TITLE, pad=6)
     fig.tight_layout()
     rap = {"n_rows": len(rows),
            "n_ci_sig": sum(1 for r in rows if r["ci_lo_pt"] > 0 or r["ci_hi_pt"] < 0),
@@ -825,60 +998,74 @@ def f2_tradeoff(data_t3: dict, tables: dict, frag_rows: list) -> dict:
             "instances_individuelles_rappel", "instances_foule_rappel",
             "instances_taille_T1_rappel", "instances_taille_T2_rappel",
             "instances_taille_T3_rappel"]
-    libB = {"rappel_strict_instances": "rappel strict (toutes instances)",
-            "instances_toutes_rappel": "rappel toutes",
-            "instances_individuelles_rappel": "rappel individuelles",
-            "instances_foule_rappel": "rappel foule (cachés)",
-            "instances_taille_T1_rappel": "rappel petits T1",
-            "instances_taille_T2_rappel": "rappel moyens T2",
-            "instances_taille_T3_rappel": "rappel grands T3"}
     top7 = [r["classe"] for r in frag_rows if r["delta"] > 0][:7]
     forcees = ["person", "traffic light", "terrain"]     # lien rappel / paradoxe objets fins / seule baisse
     gardee = set(top7) | set(forcees)
     rowsC = [r for r in frag_rows if r["classe"] in gardee]
-    fig, (axA, axB, axC) = plt.subplots(1, 3, figsize=(16.9, 0.55 * max(len(rowsA), len(paie)) + 2.4))
+    # 3 panneaux À LA LARGEUR IMPRIMÉE (2,39 in chacun) : la hauteur suit le
+    # panneau le plus peuplé, et les libellés de classes passent en version
+    # COURTE (voir classe_court) — 29 caractères bilingues laissaient 1,06 in
+    # pour tracer l'IC.
+    fig, (axA, axB, axC) = plt.subplots(
+        1, 3, figsize=(L, 0.34 * max(len(rowsA), len(paie), len(rowsC)) + 1.30))
 
     def draw(ax, rows, get, titre, xlabel):
-        ymax = 0.0
-        for y, r in enumerate(rows):
-            d, lo, hi, sig, lib, couleur = get(r)
+        vals = [get(r) for r in rows]
+        ymax = max(max(abs(v[1]), abs(v[2]), abs(v[0])) for v in vals)
+        for y, (d, lo, hi, sig, lib, couleur) in enumerate(vals):
             _forest_row(ax, y, d, lo, hi, sig, couleur)
-            ax.text(max(hi, d) + 0.03 * (ymax + 1), y, f"{d:+.2f}" + (" *" if sig else ""),
-                    va="center", fontsize=8.8)
-            ymax = max(ymax, abs(lo), abs(hi), abs(d))
+            # Libellé HORS de l'intervalle de confiance (à droite du cap haut si
+            # Δ > 0, à gauche du cap bas sinon) : posé à max(hi, d)+offset avant
+            # le 2026-10-03, il recouvrait la ligne d'IC ou celle du zéro sur
+            # toutes les lignes négatives du panneau central.
+            #
+            # 2026-10-04 : le décrochage passe d'UNITÉS DE DONNÉES (pad = 3 % de
+            # ymax) à POINTS TYPOGRAPHIQUES (offset points). En unités, le
+            # décrochage vaut 1,7 px une fois le panneau ramené à 2,39 in de
+            # large — moins que la garde de 1,5 px du gate plus le rayon du cap
+            # d'IC (s = 14 → 2,1 pt) : la ligne d'IC frôlait le libellé (mesuré :
+            # « ligne×texte traverse '+3.78' » et 5 autres sur le panneau A). En
+            # points, l'écart ne dépend plus de l'échelle de l'axe.
+            ax.annotate(f"{d:+.2f}" + (" *" if sig else ""),
+                        (hi if d > 0 else lo, y), textcoords="offset points",
+                        xytext=(5, 0) if d > 0 else (-5, 0),
+                        va="center", ha="left" if d > 0 else "right", fontsize=FZ_TICK)
         ax.set_yticks(range(len(rows)))
-        ax.set_yticklabels([get(r)[4] for r in rows], fontsize=9)
+        ax.set_yticklabels([get(r)[4] for r in rows], fontsize=FZ_TICK)
         ax.axvline(0, color="black", lw=1.0)
-        ax.set_xlim(-(ymax * 1.15 + 0.15), ymax * 1.35 + 0.4)
+        ax.set_xlim(-(ymax * 1.3 + 0.4), ymax * 1.35 + 0.4)
         ax.invert_yaxis()
-        ax.set_title(titre, fontsize=10, pad=8)
-        ax.set_xlabel(xlabel, fontsize=9.5)
+        ax.set_title(titre, fontsize=FZ_TITLE, pad=5)
+        ax.set_xlabel(xlabel, fontsize=FZ_LAB)
         ax.grid(axis="x", alpha=0.25, lw=0.6)
 
     draw(axA, rowsA,
          lambda r: (r["delta_pt"], r["ci_lo_pt"], r["ci_hi_pt"], r["p_holm_arm"] < 0.05,
-                    f"{r['classe']} ({CL_FR[r['classe']]})", "#2e7d32"),
-         "Ce que le blob ACHÈTE — IoU pixel des objets fins (vs B)\n(IC excluant 0 ; * = Holm par bras < 0,05)",
-         "Δ IoU (points), IC95 — * = Holm < 0,05")
+                    classe_court(r['classe']), "#2e7d32"),
+         T("F2.titreA"), T("F2.xlabelA"))
     draw(axB, paie,
          lambda met: (lambda pw: (pw["delta"] * 100, pw["ci95"][0] * 100, pw["ci95"][1] * 100,
-                                  pw["p_holm"] < 0.05, libB[met], "#c62828"))(tables[met]["pairwise"]["G_vs_B"]),
-         "Ce que le blob PAIE — rappel instance piéton (vs B)",
-         "Δ rappel (points), IC95 — * = Holm < 0,05")
+                                  pw["p_holm"] < 0.05, libB(met), "#c62828"))(tables[met]["pairwise"]["G_vs_B"]),
+         T("F2.titreB"), T("F2.xlabelB"))
     draw(axC, rowsC,
          lambda r: (r["delta"], r["ci95"][0], r["ci95"][1], r["holm19"] < 0.05,
-                    f"{r['classe']} ({CL_FR[r['classe']]})",
+                    classe_court(r['classe']),
                     "#ef6c00" if r["delta"] > 0 else "#1565c0"),
-         "La facture TOPOLOGIE — composantes connexes par classe (vs B)",
-         "Δ nb composantes/image, IC95 — * = Holm(19) < 0,05")
-    fig.suptitle(f"F2 — Le trade-off du blob loss seul : IoU pixel des objets fins ↑ contre rappel instance "
-                 f"piéton ↓ — et la facture topologie : plus de composantes connexes dans {n_hausse} classes "
-                 f"sur {n_cls} vs B apparié ({n_ctrl} sur {n_cls} vs contrôle, piétons ×2,2)\n"
-                 "G vs B apparié (160 époques, seule la loss change) ; gauche : attribution per-class P3.16 · "
-                 "milieu : métriques instance régénérées · droite : décomposition par classe des composantes "
-                 "connexes (mesure inédite, preds P3.16)",
-                 fontsize=11, y=1.03)
-    fig.tight_layout()
+         T("F2.titreC"), T("F2.xlabelC"))
+    # Suptitle placé PAR MESURE d'encre (y=1.03 + tight_layout() sans rect
+    # était un dosage : le suptitle retombait sur les titres de panneaux —
+    # 93 chevauchements mesurés le 2026-10-03 sur F2_tradeoff_fr).
+    from fig_overlap_gate import placer_suptitle, recadrer_panneaux
+    rect_top = placer_suptitle(
+        fig, T("F2.suptitle", n_hausse=n_hausse, n_cls=n_cls, n_ctrl=n_ctrl),
+        fontsize=FZ_SUPT)
+    fig.tight_layout(rect=(0, 0, 1, rect_top))
+    # Titres ET libellés d'axes recoupés sur la largeur réelle de chaque
+    # panneau (2,39 in à l'échelle 1) — le titre FR du panneau C débordait
+    # déjà de 33 px à droite à 16,9 in de large (mesuré le 2026-10-03) — puis
+    # re-layout pour réserver la hauteur des lignes ajoutées.
+    recadrer_panneaux(fig, [axA, axB, axC], FZ_TITLE, FZ_LAB, titre_pad=5)
+    fig.tight_layout(rect=(0, 0, 1, rect_top))
     return {"n_rows_gauche": len(rowsA), "n_rows_milieu": len(paie), "n_rows_droite": len(rowsC),
             "classes_panneau_C": [r["classe"] for r in rowsC],
             "frag_n_classes": n_cls, "frag_n_hausse_vs_B": n_hausse,
@@ -889,48 +1076,88 @@ def f2_tradeoff(data_t3: dict, tables: dict, frag_rows: list) -> dict:
 def f3_polyvalence() -> dict:
     p = json.loads(P317.read_text())
     prof, ordre = p["profil"], p["classement_polyvalence"]
-    fig, ax = plt.subplots(figsize=(10.4, 7.2))
+    # Dessinée À LA LARGEUR IMPRIMÉE ; hauteur = l'empreinte mesurée sur le PDF
+    # du 2026-10-03 (515,6 × 353,5 pt = 7,16 × 4,91 in).
+    fig, ax = plt.subplots(figsize=(L, 4.95))
     xs, ys = [], []
     for a in ordre:
         q = prof[a]
         x, y = q["mean_pct"] * 100, q["dommage_max_pt"]
         xs.append(x); ys.append(y)
         if a == "G":
-            ax.scatter([x], [y], s=420, marker="*", color="#c62828", edgecolor="black",
-                       linewidth=1.1, zorder=5)
-            ax.annotate(f"G · blob loss seul\n(dominé, dommage {y:.2f} pt,\n"
-                        f"#1 sur {q['n_rang1']}/36 endpoints)",
-                        (x, y), textcoords="offset points", xytext=(14, 18), fontsize=9.5,
-                        color="#c62828", fontweight="bold",
+            ax.scatter([x], [y], s=210, marker="*", color="#c62828", edgecolor="black",
+                       linewidth=0.9, zorder=5)
+            # Annotation EN BAS À DROITE de l'étoile, et plus en haut à droite
+            # (xytext 14,18 avant le 2026-10-04). Mesuré avec le renderer : sa
+            # boîte à fond BLANC OPAQUE (230 × 64 px) couvrait 75 % du marqueur
+            # de B en FR et 73 % en EN — B est à (51,23 ; −4,06), c'est-à-dire
+            # exactement en haut à droite de G (41,93 ; −6,76), et le bloc de
+            # 3 lignes s'étendait jusqu'à x = 54,4. Le quadrant bas-droit de G
+            # est vide de tout point (le plus proche, consensus D⊘B, est à
+            # x = 71,9). verifier_occlusion_marqueurs() verrouille désormais
+            # cette mesure : un fond opaque ne peut plus recouvrir un marqueur.
+            ax.annotate(T("F3.annotateG", y=f"{y:.2f}", nr=q['n_rang1']),
+                        (x, y), textcoords="offset points", xytext=(10, -10),
+                        ha="left", va="top", fontsize=FZ_ANN,
+                        color="#c62828", fontweight="bold", zorder=6,
+                        bbox=dict(fc="white", ec="none", alpha=1.0, pad=1),
                         arrowprops=dict(arrowstyle="-", color="#c62828", lw=1.0))
         elif a == "moe_v3cs":
-            ax.scatter([x], [y], s=190, marker="D", color="#9467bd", edgecolor="black",
-                       linewidth=1.1, zorder=5)
-            ax.annotate(f"MoE-V3-CS\n(seul bras T0,\ndommage {y:.2f} pt)", (x, y),
-                        textcoords="offset points", xytext=(12, -34), fontsize=9.5,
-                        color="#6a3d9a",
+            ax.scatter([x], [y], s=95, marker="D", color="#9467bd", edgecolor="black",
+                       linewidth=0.9, zorder=5)
+            # Annotation à droite du losange, dans le quadrant vide : posée en
+            # dessous (xytext 12,-34) avant le 2026-10-03, elle était barrée par
+            # la ligne pointillée du seuil T0.
+            ax.annotate(T("F3.annotateMoE", y=f"{y:.2f}"), (x, y),
+                        textcoords="offset points", xytext=(11, -8), fontsize=FZ_ANN,
+                        color="#6a3d9a", va="top", zorder=6,
+                        bbox=dict(fc="white", ec="none", alpha=1.0, pad=1),
                         arrowprops=dict(arrowstyle="-", color="#9467bd", lw=1.0))
         else:
-            ax.scatter([x], [y], s=88, color="#757575", alpha=0.85, zorder=4)
-            ax.annotate(LABEL_COURT.get(a, a), (x, y), textcoords="offset points",
-                        xytext=(8, 5), fontsize=8.8, color="#444444")
+            ax.scatter([x], [y], s=46, color="#757575", alpha=0.85, zorder=4)
+            # Étiquette À DROITE du point et centrée en y (offset 6,4 avant le
+            # 2026-10-04) : le décalage vers le haut amenait l'étiquette de
+            # C⊘B (y = −1,90) au contact de la ligne pointillée du seuil T0
+            # (y = −1,0) — mesuré « ligne×texte traverse 'C⊘B' ».
+            ax.annotate(label_court(a), (x, y), textcoords="offset points",
+                        xytext=(6, 0), va="center", ha="left",
+                        fontsize=FZ_TICK, color="#444444")
     ax.axhline(-1.0, color="#2e7d32", ls="--", lw=1.2)
     ax.axvline(50, color="#888888", ls=":", lw=1.0)
     x0, x1 = min(xs) - 4, max(xs) + 4
     ax.set_xlim(x0, x1)
     ax.set_ylim(min(ys) - 2.2, 1.2)
     ax.fill_between([x0, x1], -1.0, 1.2, color="#2e7d32", alpha=0.06, zorder=1)
-    ax.text(x1 - 0.5, -0.55, "seuil T0 : aucun endpoint > 1 pt sous la référence", ha="right",
-            fontsize=8.8, color="#2e7d32")
-    ax.set_xlabel("percentile moyen sur 36 endpoints (%) — « bon partout » →", fontsize=10.5)
-    ax.set_ylabel("dommage maximal (pt) — pire Δ d'un endpoint vs contrôle", fontsize=10.5)
+    # Libellé du seuil à gauche du losange MoE (zone vide au-dessus de C⊘B) :
+    # à droite, il entrait en collision avec l'annotation MoE-V3-CS.
+    #
+    # 2026-10-04 : à l'échelle imprimée, ce libellé d'une seule ligne (50
+    # caractères à 6,6 pt = 2,4 in) partait de x = 49,2 vers la gauche jusqu'à
+    # BUTER sur le tick « 0 » de l'axe des ordonnées (chevauchement mesuré
+    # 2,9 × 7,5 px). Il est RECOUPÉ sur 24 % de la largeur du canvas (2 lignes)
+    # et porte un fond blanc opaque en zorder 5 : la pointillée verte du seuil
+    # passe DERRIÈRE la boîte au lieu de le traverser.
+    from fig_overlap_gate import cadrer_largeur  # noqa: PLC0415
+    fig.canvas.draw()
+    _seuil = cadrer_largeur(fig, T("F3.seuil"), FZ_TICK,
+                            limite_px=0.24 * fig.canvas.get_width_height()[0])
+    ax.text(49.2, -0.62, _seuil, ha="right", va="center", fontsize=FZ_TICK,
+            color="#2e7d32", zorder=5,
+            bbox=dict(fc="white", ec="none", alpha=1.0, pad=1.0))
+    ax.set_xlabel(T("F3.xlabel"), fontsize=FZ_LAB)
+    ax.set_ylabel(T("F3.ylabel"), fontsize=FZ_LAB)
     g = prof["G"]
-    ax.set_title("F3 — Position de G dans le classement de polyvalence P3.17 (13 bras, 36 endpoints)\n"
-                 f"G = spécialiste dominé (percentile moyen {g['mean_pct']*100:.1f} · pire rang "
-                 f"{g['pire_rang']}/13 · dommage max {g['dommage_max_pt']:.2f} pt sur {g['endpoint_dommage']}) ;\n"
-                 "le MoE-V3-CS est le seul bras dans la zone T0 — la spécialité de G est ce que le MoE "
-                 "absorbe sans ses dégâts (papier 3)", fontsize=10.5, pad=10)
+    ax.set_title(T("F3.title", mp=f"{g['mean_pct']*100:.1f}", pr=g['pire_rang'],
+                   dm=f"{g['dommage_max_pt']:.2f}", ep=g['endpoint_dommage']),
+                 fontsize=10.5, pad=10)
     ax.grid(alpha=0.25, lw=0.6)
+    fig.tight_layout()
+    from fig_overlap_gate import titre_cadre  # noqa: PLC0415
+    ax.set_title(titre_cadre(fig, ax, T("F3.title", mp=f"{g['mean_pct']*100:.1f}",
+                                        pr=g['pire_rang'],
+                                        dm=f"{g['dommage_max_pt']:.2f}",
+                                        ep=g['endpoint_dommage']), 10.5),
+                 fontsize=10.5, pad=10)
     fig.tight_layout()
     return {"n_points": len(ordre), "x_G": g["mean_pct"] * 100,
             "y_G": g["dommage_max_pt"],
@@ -940,6 +1167,91 @@ def f3_polyvalence() -> dict:
 
 # --------------------------------------------------------------------------- #
 
+def build_all_figures(t3_d: dict, tables: dict, frag_rows: list) -> dict:
+    """Construit F1-F3 en DEUX langues : nom NU = anglais (comme paper.md), suffixe `_fr` =
+    français (comme paper_fr.md). Retourne {stem: {"en": rap, "fr": rap}}. Chaque figure est
+    dessinée puis sauvée langue par langue ; les valeurs numériques viennent des expressions
+    d'origine, identiques dans les deux langues (seul le chrome traduit diffère)."""
+    def save(stem: str, rap: dict, lang: str) -> dict:
+        fig = plt.gcf()
+        base = stem if lang == "en" else f"{stem}_fr"
+        # GATE D'ENCRE (récidive 2026-10-03) : avant d'écrire, mesure des
+        # superpositions RÉELLES (texte×texte, ligne de données×texte,
+        # hors-canvas) avec le renderer. Le suptitle de F2 posé à y=1.03 sans
+        # rect retombait SUR les titres de panneaux (93 paires de mots
+        # chevauchants mesurées dans le PDF livré). Fail-closed : check() lève.
+        from fig_overlap_gate import verifier_figure
+        problemes = verifier_figure(fig, base)
+        check(f"encre {base}", not problemes,
+              "; ".join(problemes[:6]) if problemes
+              else "0 superposition d'encre mesurée (texte×texte, ligne×texte, hors-canvas)")
+        for ext in ("png", "pdf"):
+            fig.savefig(OUT_FIGS / f"{base}.{ext}", dpi=170, bbox_inches="tight")
+        p = OUT_FIGS / f"{base}.png"
+        rap.update({"lang": lang, "chemin": str(p.relative_to(REPO)),
+                    "octets": p.stat().st_size,
+                    "png_px": list(plt.imread(p).shape[:2])})
+        ecrire_atomique(OUT_DISCORD / f"{base}.png", p.read_bytes())
+        plt.close("all")
+        return rap
+
+    figs: dict = {}
+    for lang in ("en", "fr"):
+        set_lang(lang)
+        log(f"[figures] langue {lang}")
+        rap = f1_forest_perclass(t3_d)
+        figs.setdefault("F1_forest_perclass_GvsB", {})[lang] = save("F1_forest_perclass_GvsB", rap, lang)
+        rap = f2_tradeoff(t3_d, tables, frag_rows)
+        figs.setdefault("F2_tradeoff", {})[lang] = save("F2_tradeoff", rap, lang)
+        rap = f3_polyvalence()
+        figs.setdefault("F3_polyvalence_G", {})[lang] = save("F3_polyvalence_G", rap, lang)
+    for stem, bylang in figs.items():
+        for lang, r in bylang.items():
+            log(f"→ {r['chemin']} [{lang}] ({r['octets']/1e6:.1f} Mo, {r['png_px'][1]}×{r['png_px'][0]} px)")
+    return figs
+
+
+def _check_figures(figs: dict) -> None:
+    """Autocontrôles structurels (indépendants de la langue) — fail-closed via check()."""
+    f1 = figs["F1_forest_perclass_GvsB"]["en"]
+    f2 = figs["F2_tradeoff"]["en"]
+    f3 = figs["F3_polyvalence_G"]["en"]
+    check("F1 19 classes", f1["n_rows"] == 19, f"n_rows={f1['n_rows']}")
+    check("F2 panneaux 6+7+10",
+          f2["n_rows_gauche"] == 6 and f2["n_rows_milieu"] == 7 and f2["n_rows_droite"] == 10,
+          f"{f2['n_rows_gauche']}+{f2['n_rows_milieu']}+{f2['n_rows_droite']}")
+    check("F3 11 bras", f3["n_points"] == 11, f"n_points={f3['n_points']}")
+
+
+def figures_seules(t0: float) -> int:
+    """Mode --figures-only : régénère UNIQUEMENT les figures (bilingues) depuis les artefacts
+    déjà assertés et persistés. Aucun bootstrap recalculé, AUCUNE table publiée réécrite —
+    seul `figures_autocontrole` de paper4_tables.json est mis à jour. C'est le chemin sûr pour
+    corriger les libellés sans risquer de faire dériver les nombres gravés dans les tables."""
+    log("[figures-only] figures bilingues depuis les artefacts persistés (aucune table réécrite)")
+    in_tables = OUT_RAW / "table_metiers_G_pairees.json"
+    in_frag = OUT_RAW / "table_frag_classes_G_vs_B.json"
+    for p in (in_tables, in_frag, P316_ATT_B, P316_ATT_C, P317):
+        if not p.exists():
+            raise SystemExit(f"[FAIL] artefact persisté absent : {p} — lancer d'abord le chemin complet")
+    t3_d = t3_perclass()[2]                                       # lit P316_ATT_B/C (léger)
+    tables = json.loads(in_tables.read_text())["tables"]          # pairwise G_vs_B déjà bootstrappé
+    frag_cls = json.loads(in_frag.read_text())["tables"]          # composantes connexes par classe
+    _rows, _h19, frag_rows = build_frag_rows(frag_cls)            # même construction que t4_metiers
+    figs = build_all_figures(t3_d, tables, frag_rows)
+    _check_figures(figs)
+    pj = OUT_TABLES / "paper4_tables.json"
+    doc = json.loads(pj.read_text())
+    doc["figures_autocontrole"] = figs
+    doc["figures_bilingue"] = {"date": datetime.now().isoformat(timespec="seconds"),
+                               "langues": ["en", "fr"],
+                               "convention": "nom nu = EN (paper.md), _fr = FR (paper_fr.md)"}
+    ecrire_atomique(pj, json.dumps(doc, indent=1, ensure_ascii=False))
+    log(f"[fin figures-only] {time.time()-t0:.0f}s — F1-F3 × 2 langues (6 png + 6 pdf), "
+        f"checks {sum(c['ok'] for c in SANITY)}/{len(SANITY)} ✅")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -947,6 +1259,9 @@ def main():
     ap.add_argument("--bootstrap-seed", type=int, default=DEFAULT_BOOTSTRAP_SEED)
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--skip-frags", action="store_true")
+    ap.add_argument("--figures-only", action="store_true",
+                    help="ne régénère QUE les figures (bilingues EN+FR) depuis les artefacts "
+                         "persistés ; aucun bootstrap recalculé, aucune table publiée réécrite")
     args = ap.parse_args()
     t0 = time.time()
 
@@ -954,6 +1269,9 @@ def main():
     OUT_TABLES.mkdir(parents=True, exist_ok=True)
     OUT_FIGS.mkdir(parents=True, exist_ok=True)
     OUT_DISCORD.mkdir(parents=True, exist_ok=True)
+
+    if args.figures_only:
+        return figures_seules(t0)
 
     if not args.skip_frags:
         tasks = [(a, s) for a in ("G", "B") for s in SEEDS
@@ -1036,41 +1354,9 @@ def main():
                   "table harness ; les deux sources donnent le même verdict (non significatif)."]
     ecrire_atomique(OUT_TABLES / "SANITY.md", "\n".join(sanity_md) + "\n")
 
-    log("[figures] F1-F3")
-
-    def save(stem: str, rap: dict) -> dict:
-        """Une figure vient d'être dessinée (gcf) : png+pdf + copie discord_out + autocontrôle."""
-        fig = plt.gcf()
-        for ext in ("png", "pdf"):
-            fig.savefig(OUT_FIGS / f"{stem}.{ext}", dpi=170, bbox_inches="tight")
-        p = OUT_FIGS / f"{stem}.png"
-        rap.update({"chemin": str(p.relative_to(REPO)),
-                    "octets": p.stat().st_size,
-                    "png_px": list(plt.imread(p).shape[:2])})
-        ecrire_atomique(OUT_DISCORD / f"{stem}.png", p.read_bytes())
-        plt.close("all")
-        return rap
-
-    figs = {}
-    rap = f1_forest_perclass(t3_d)
-    figs["F1_forest_perclass_GvsB"] = save("F1_forest_perclass_GvsB", rap)
-    rap = f2_tradeoff(t3_d, tables, t4_d["frag_classes"])
-    figs["F2_tradeoff"] = save("F2_tradeoff", rap)
-    rap = f3_polyvalence()
-    figs["F3_polyvalence_G"] = save("F3_polyvalence_G", rap)
-
-    for k, r in figs.items():
-        log(f"→ {r['chemin']} ({r['octets']/1e6:.1f} Mo, {r['png_px'][1]}×{r['png_px'][0]} px)")
-    check("F1 19 classes", figs["F1_forest_perclass_GvsB"]["n_rows"] == 19,
-          f"n_rows={figs['F1_forest_perclass_GvsB']['n_rows']}")
-    check("F2 panneaux 6+7+10",
-          figs["F2_tradeoff"]["n_rows_gauche"] == 6 and
-          figs["F2_tradeoff"]["n_rows_milieu"] == 7 and
-          figs["F2_tradeoff"]["n_rows_droite"] == 10,
-          f"{figs['F2_tradeoff']['n_rows_gauche']}+{figs['F2_tradeoff']['n_rows_milieu']}"
-          f"+{figs['F2_tradeoff']['n_rows_droite']}")
-    check("F3 11 bras", figs["F3_polyvalence_G"]["n_points"] == 11,
-          f"n_points={figs['F3_polyvalence_G']['n_points']}")
+    log("[figures] F1-F3 — bilingue EN (nom nu) + FR (_fr)")
+    figs = build_all_figures(t3_d, tables, t4_d["frag_classes"])
+    _check_figures(figs)
 
     ecrire_atomique(OUT_TABLES / "paper4_tables.json", json.dumps({
         "date": datetime.now().isoformat(timespec="seconds"),

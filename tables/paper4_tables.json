@@ -711,80 +711,168 @@
  },
  "figures_autocontrole": {
   "F1_forest_perclass_GvsB": {
-   "n_rows": 19,
-   "n_ci_sig": 7,
-   "n_sig": 3,
-   "xlim": [
-    -9.844450685156014,
-    10.644450685156013
-   ],
-   "classes_ordre": [
-    "truck",
-    "traffic light",
-    "pole",
-    "bicycle",
-    "motorcycle",
-    "traffic sign",
-    "person",
-    "bus",
-    "terrain",
-    "car",
-    "vegetation",
-    "sky",
-    "building",
-    "road",
-    "sidewalk",
-    "wall",
-    "fence",
-    "rider",
-    "train"
-   ],
-   "chemin": "papers/paper4/figures/F1_forest_perclass_GvsB.png",
-   "octets": 179459,
-   "png_px": [
-    1676,
-    1685
-   ]
+   "en": {
+    "n_rows": 19,
+    "n_ci_sig": 7,
+    "n_sig": 3,
+    "xlim": [
+     -11.144450685156013,
+     10.644450685156013
+    ],
+    "classes_ordre": [
+     "truck",
+     "traffic light",
+     "pole",
+     "bicycle",
+     "motorcycle",
+     "traffic sign",
+     "person",
+     "bus",
+     "terrain",
+     "car",
+     "vegetation",
+     "sky",
+     "building",
+     "road",
+     "sidewalk",
+     "wall",
+     "fence",
+     "rider",
+     "train"
+    ],
+    "lang": "en",
+    "chemin": "papers/paper4/figures/F1_forest_perclass_GvsB.png",
+    "octets": 113041,
+    "png_px": [
+     1270,
+     1199
+    ]
+   },
+   "fr": {
+    "n_rows": 19,
+    "n_ci_sig": 7,
+    "n_sig": 3,
+    "xlim": [
+     -11.144450685156013,
+     10.644450685156013
+    ],
+    "classes_ordre": [
+     "truck",
+     "traffic light",
+     "pole",
+     "bicycle",
+     "motorcycle",
+     "traffic sign",
+     "person",
+     "bus",
+     "terrain",
+     "car",
+     "vegetation",
+     "sky",
+     "building",
+     "road",
+     "sidewalk",
+     "wall",
+     "fence",
+     "rider",
+     "train"
+    ],
+    "lang": "fr",
+    "chemin": "papers/paper4/figures/F1_forest_perclass_GvsB_fr.png",
+    "octets": 136889,
+    "png_px": [
+     1269,
+     1199
+    ]
+   }
   },
   "F2_tradeoff": {
-   "n_rows_gauche": 6,
-   "n_rows_milieu": 7,
-   "n_rows_droite": 10,
-   "classes_panneau_C": [
-    "car",
-    "pole",
-    "vegetation",
-    "road",
-    "traffic sign",
-    "building",
-    "sidewalk",
-    "person",
-    "traffic light",
-    "terrain"
-   ],
-   "frag_n_classes": 19,
-   "frag_n_hausse_vs_B": 16,
-   "frag_n_hausse_vs_controle": 19,
-   "suptitre_frag": "16/19 vs B, 19/19 vs controle",
-   "chemin": "papers/paper4/figures/F2_tradeoff.png",
-   "octets": 286399,
-   "png_px": [
-    1100,
-    3019
-   ]
+   "en": {
+    "n_rows_gauche": 6,
+    "n_rows_milieu": 7,
+    "n_rows_droite": 10,
+    "classes_panneau_C": [
+     "car",
+     "pole",
+     "vegetation",
+     "road",
+     "traffic sign",
+     "building",
+     "sidewalk",
+     "person",
+     "traffic light",
+     "terrain"
+    ],
+    "frag_n_classes": 19,
+    "frag_n_hausse_vs_B": 16,
+    "frag_n_hausse_vs_controle": 19,
+    "suptitre_frag": "16/19 vs B, 19/19 vs controle",
+    "lang": "en",
+    "chemin": "papers/paper4/figures/F2_tradeoff.png",
+    "octets": 185867,
+    "png_px": [
+     811,
+     1201
+    ]
+   },
+   "fr": {
+    "n_rows_gauche": 6,
+    "n_rows_milieu": 7,
+    "n_rows_droite": 10,
+    "classes_panneau_C": [
+     "car",
+     "pole",
+     "vegetation",
+     "road",
+     "traffic sign",
+     "building",
+     "sidewalk",
+     "person",
+     "traffic light",
+     "terrain"
+    ],
+    "frag_n_classes": 19,
+    "frag_n_hausse_vs_B": 16,
+    "frag_n_hausse_vs_controle": 19,
+    "suptitre_frag": "16/19 vs B, 19/19 vs controle",
+    "lang": "fr",
+    "chemin": "papers/paper4/figures/F2_tradeoff_fr.png",
+    "octets": 185793,
+    "png_px": [
+     813,
+     1201
+    ]
+   }
   },
   "F3_polyvalence_G": {
-   "n_points": 11,
-   "x_G": 41.933760683760696,
-   "y_G": -6.76258964226416,
-   "x_moe": 60.43447293447293,
-   "y_moe": -0.5291005291005235,
-   "chemin": "papers/paper4/figures/F3_polyvalence_G.png",
-   "octets": 169808,
-   "png_px": [
-    1199,
-    1749
-   ]
+   "en": {
+    "n_points": 11,
+    "x_G": 41.933760683760696,
+    "y_G": -6.76258964226416,
+    "x_moe": 60.43447293447293,
+    "y_moe": -0.5291005291005235,
+    "lang": "en",
+    "chemin": "papers/paper4/figures/F3_polyvalence_G.png",
+    "octets": 133255,
+    "png_px": [
+     816,
+     1201
+    ]
+   },
+   "fr": {
+    "n_points": 11,
+    "x_G": 41.933760683760696,
+    "y_G": -6.76258964226416,
+    "x_moe": 60.43447293447293,
+    "y_moe": -0.5291005291005235,
+    "lang": "fr",
+    "chemin": "papers/paper4/figures/F3_polyvalence_G_fr.png",
+    "octets": 132864,
+    "png_px": [
+     815,
+     1201
+    ]
+   }
   }
  },
  "sanity": [
@@ -1078,5 +1166,13 @@
    "ok": true,
    "detail": "n_points=11"
   }
- ]
+ ],
+ "figures_bilingue": {
+  "date": "2026-10-04T16:57:12",
+  "langues": [
+   "en",
+   "fr"
+  ],
+  "convention": "nom nu = EN (paper.md), _fr = FR (paper_fr.md)"
+ }
 }

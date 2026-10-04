@@ -7,6 +7,15 @@ header-includes:
 
 # Le poids égal par instance ne paie pas seul : un auxiliaire blob loss en pleine résolution Cityscapes achète l'IoU des objets fins avec le rappel piéton, et ne paie que comme expert d'un mélange d'experts
 
+**Guillaume Cassez · Stanislas Larnier**
+
+Recherche indépendante
+
+*Guillaume Cassez* — [ORCID 0009-0007-0987-3931](https://orcid.org/0009-0007-0987-3931) · `cassez.guillaume@gmail.com` · [guillaume-cassez.fr](https://guillaume-cassez.fr)  
+*Stanislas Larnier* — `stanislaslarnier@gmail.com` · [HAL stanislas-larnier](https://cv.hal.science/stanislas-larnier)
+
+*Liste d’auteurs établie le 2026-10-04 — Stanislas Larnier rejoint ce papier en deuxième position, par accord mutuel entre les deux auteurs, comme sur les quatre papiers BRATS du même programme. Les versions déposées sur Zenodo avant cette date portent Guillaume Cassez seul. Aucun chiffre du manuscrit n’est modifié.*
+
 *Cityscapes val · ConvNeXt-V2-Base + UPerNet · CE + Dice + 0,5·blob (Kofler, IPMI 2023) vs CE + Dice · 3 seeds × 160 époques à 1024×2048*
 
 ---
@@ -17,7 +26,7 @@ On rapporte une évaluation **pré-enregistrée** et contrôlée de la **blob lo
 
 L'**endpoint primaire pré-enregistré est nul** : mIoU officielle dataset-level sur le holdout partagé de 500 images, Δ(G−B) = **+0,170 pt**, IC95 [−0,233 ; +0,551], p bilatéral du bootstrap apparié par image = **0,4032** (B = 10 000 réplicats). Le poids égal par instance **n'améliore pas** la mIoU globale dans ce régime. Ce que le terme fait réellement est un **trade-off mesuré**. Il *achète* la couverture pixel des objets fins — traffic light +0,98, pole +0,58, bicycle +0,57 IoU vs B (Holm-significatifs dans la famille 19 classes), truck +3,78 (IC excluant 0), Boundary F1 (3 px) +0,63 — et le *paie* en intégrité des instances piétonnes : rappel strict **−4,34**, strate des petites instances (T1) **−5,65**, groupes-foule **−5,74**, précision pixel piéton **−2,70** (tous vs B apparié, Holm = 0), et une **fragmentation** générale des masques : les composantes connexes passent de 615,1 à 933,9 par image (**×1,52**), en hausse dans **16 classes sur 19** contre le bras B apparié (14 hausses Holm-significatives ; la seule baisse matérielle est terrain, −1,8) et dans **19 sur 19** contre le bras contrôle (masques piétons ×2,2) — une décomposition par classe inédite qui *révise* l'hypothèse mécaniste de travail du programme (le terme ne supprime pas les petites composantes ; il crée des trous). Sur le critère de polyvalence pré-enregistré du programme (36 endpoints × 13 bras), G est un **spécialiste dominé** : percentile moyen 41,9, pire rang 13/13, dommage maximal −6,76 pt, 13 pertes significatives contre 4 gains.
 
-Le même verdict tient sur un deuxième dataset et un deuxième régime de probabilités : sur BRATS 2023 (sigmoid region-based, MedNeXt, recette nnU-Net, CV 5 folds, n = 1 196), le bras blob seul score **−0,00376 Dice** vs baseline, mais comme **expert 3 du MoE-V3 gagnant** il contribue **+0,00566 Dice, 1^er^ des 29 bras** [DOI 10.5281/zenodo.22903668]. Le mélange compagnon Cityscapes **MoE-V3-CS** (quatre experts initialisés depuis B, D, Dp, G ; gate top-2 par patch) raconte la même histoire : il absorbe la spécialité objets fins de G — rappel petites instances T1 +0,80 (significatif), traffic light non dégradé — sans hériter de ses dégâts (dommage maximal −0,53 pt ; ΔmIoU +0,45 pt, p = 0,0066 vs son contrôle apparié).
+Le même verdict tient sur un deuxième dataset et un deuxième régime de probabilités : sur BRATS 2023 (sigmoid region-based, MedNeXt, recette nnU-Net, CV 5 folds, n = 1 196), le bras blob seul score **−0,00376 Dice** vs baseline, mais comme **expert 3 du MoE-V3 gagnant** il contribue **+0,00566 Dice, 1^er^ des 29 bras** [DOI 10.5281/zenodo.22903668]. Sur le plateau Cityscapes du programme, le bras de mélange d'experts initialisé depuis ces spécialistes (MoE-V3-CS, table maîtresse P3.14) va dans le même sens, en contexte : ΔmIoU +0,45 pt [+0,11 ; +0,82], p = 0,0066 vs son contrôle apparié, dommage maximal −0,53 pt, rappel des petites instances T1 +0,80, traffic light non dégradé — le profil d'un bras qui met à profit la spécialité objets fins de G sans porter ses dégâts. L'analyse propre de ce bras de mélange (diagnostic de routage, familles de multiplicité) n'est pas l'objet du présent papier.
 
 **Contributions.** (1) Un **primaire nul pré-enregistré** pour un auxiliaire à poids-égal-par-instance en segmentation exclusive pleine résolution, rapporté comme tel. (2) Un **diagnostic de trade-off complet** : IoU par classe, sept familles de métriques métier sur les instances piétonnes, et une **décomposition par classe inédite des composantes connexes** (933,9 vs 615,1 composantes/image) qui contredit le mécanisme de compaction initialement supposé — le papier rapporte ce que les tables montrent. (3) Un **portage exact** de l'algèbre de Kofler (eq. 1) au régime softmax exclusif avec paquetages d'instances pré-calculés : +1 à 2 % de temps par époque contre +870 s/époque pour le chemin naïf, parité naïf↔pré-calculé verrouillée par tests unitaires, piège d'alignement du flip horizontal documenté. (4) La preuve, sur deux datasets et deux régimes de probabilités, que le terme **paie comme expert initialisé d'un mélange** alors qu'il est nul-ou-négatif seul. (5) Publication du code, des configs, des tables, des figures et des scripts de régénération.
 
@@ -31,7 +40,7 @@ Ce papier pose la question du transfert de l'autre côté de la clôture :
 
 > Le poids égal par instance paie-t-il en segmentation sémantique **multi-classe exclusive** — softmax sur 19 classes plates — à la **résolution native Cityscapes**, sous budget d'entraînement fixe et endpoint primaire pré-enregistré ?
 
-Le cadre est un bras contrôlé d'un programme de quatre papiers sur les losses, sur Cityscapes à 1024×2048 avec ConvNeXt-V2-Base + UPerNet : une étude de régression auxiliaire par carte de distance [Cassez 2026a, DOI 10.5281/zenodo.21006236], une ablation de boundary loss dont le bras B (CE + Dice, 160 époques, seeds 42/123/456) est la référence appariée exacte utilisée ici [Cassez 2026b, DOI 10.5281/zenodo.21006393], cette étude blob loss, et un rapport compagnon sur un mélange d'experts (MoE-V3-CS) dans lequel le présent bras G sert d'expert 3. Le programme est le miroir d'un volet BRATS achevé [DOI 10.5281/zenodo.22903668 ; 10.5281/zenodo.22906447 ; 10.5281/zenodo.22904810 ; 10.5281/zenodo.20110976], si bien que chaque bras blob existe sur les deux datasets sous deux régimes de probabilités.
+Le cadre est un bras contrôlé d'un programme de quatre papiers sur les losses, sur Cityscapes à 1024×2048 avec ConvNeXt-V2-Base + UPerNet : une étude de régression auxiliaire par carte de distance [Cassez 2026a, DOI 10.5281/zenodo.21006236], une ablation de boundary loss dont le bras B (CE + Dice, 160 époques, seeds 42/123/456) est la référence appariée exacte utilisée ici [Cassez 2026b, DOI 10.5281/zenodo.21006393], cette étude blob loss, et un bras de mélange d'experts (MoE-V3-CS) initialisé depuis ces spécialistes, dont le présent bras G est l'expert 3 et dont les résultats n'interviennent ici qu'en contexte de plateau (§6.1, §6.5). Le programme est le miroir d'un volet BRATS achevé [DOI 10.5281/zenodo.22903668 ; 10.5281/zenodo.22906447 ; 10.5281/zenodo.22904810 ; 10.5281/zenodo.20110976], si bien que chaque bras blob existe sur les deux datasets sous deux régimes de probabilités.
 
 La réponse, mesurée avant la rédaction de ce manuscrit et pré-enregistrée dans la chaîne d'artefacts du programme, est **non — le primaire est nul** (Δ mIoU +0,170 pt, p = 0,4032). C'est donc un papier à résultat négatif, dans la discipline maison du programme : les résultats négatifs et neutres sont rapportés comme tels, toutes les métriques officielles sont montrées, et la contribution est le **diagnostic** (ce que le terme achète, ce qu'il casse, et le mécanisme que les tables soutiennent réellement), le **portage exact** (algèbre, coût, pièges) et l'**usage** (expert initialisé d'un mélange, mesuré sur deux datasets).
 
@@ -47,7 +56,7 @@ La réponse, mesurée avant la rédaction de ce manuscrit et pré-enregistrée d
 
 **Fragmentation et filtrage par consensus.** Les counts de composantes connexes sont un proxy de cohérence spatiale auquel la mIoU dataset-level est aveugle. Le papier boundary compagnon mesure un **veto de consensus** CC (C⊘B) qui élague −18,7 % de fragments parasites sans coût mIoU [Cassez 2026b] ; sur BRATS la règle analogue est publiée dans [DOI 10.5281/zenodo.22904810]. La décomposition par classe des fragments introduite ici (§6.4) est, à notre connaissance, la première mesure de la façon dont une loss à équilibrage par instance déplace la fragmentation *par classe* sur Cityscapes.
 
-**Mélange d'experts initialisés par spécialistes.** Le MoE-V3 BRATS [DOI 10.5281/zenodo.22903668] entraîne un gate par patch sur quatre experts initialisés depuis des bras spécialistes entraînés indépendamment — dont le bras blob. Le MoE-V3-CS compagnon Cityscapes transpose le design (quatre experts B, D, Dp, G ; gate top-2 sur patchs 3×3 ; 80 époques depuis les poids d'experts). Ce papier cite les deux pour la moitié *usage* de sa thèse ; les résultats du MoE-V3-CS lui-même sont rapportés dans l'étude compagne, pas re-mesurés ici.
+**Mélange d'experts initialisés par spécialistes.** Le MoE-V3 BRATS [DOI 10.5281/zenodo.22903668] entraîne un gate par patch sur quatre experts initialisés depuis des bras spécialistes entraînés indépendamment — dont le bras blob. Le plateau Cityscapes du programme transpose le même design (quatre experts B, D, Dp, G ; gate top-2 sur patchs 3×3 ; 80 époques depuis les poids d'experts) : c'est le bras MoE-V3-CS des tables maîtresses P3.14/P3.17, dont le présent bras G est l'expert 3. Ce papier cite le volet BRATS publié pour la moitié *usage* de sa thèse et ne mobilise le bras MoE-V3-CS qu'en contexte de plateau ; l'analyse propre de ce bras (diagnostic de routage, critère primaire contre son contrôle) n'est pas son objet.
 
 ---
 
@@ -119,7 +128,7 @@ Familles secondaires/exploratoires, chacune avec sa correction de Holm déclaré
 
 **Deux critères de significativité, jamais confondus.** *Holm-significatif* (p corrigé < 0,05 dans la famille déclarée) et *IC-excluant-zéro* (IC95 brut) sont rapportés **séparément** partout — le gras dans les tables marque uniquement la significativité Holm, et les colonnes p / Holm portent les valeurs exactes. Cette distinction compte pour ce bras : par ex. truck +3,78 IoU vs B exclut 0 mais ne survit pas au Holm 19 classes (0,460), alors que traffic light +0,98 y survit (Holm < 0,001).
 
-**Les deux paires de comparaison.** La référence appariée en budget est **B** (160 époques) — la paire du primaire. Le contexte 13 bras du programme utilise une autre référence, le **contrôle** du MoE (CE + Dice, 80 époques, initialisé B) — *non* apparié en budget avec G, toujours étiqueté comme contexte, jamais substitué à la paire appariée. Les deux sont rapportées côte à côte partout.
+**Les deux paires de comparaison.** La référence appariée en budget est **B** (160 époques) — la paire du primaire. Le contexte 13 bras du programme utilise une autre référence, le **contrôle** apparié en recette du bras de mélange (CE + Dice, 80 époques, initialisé B) — *non* apparié en budget avec G, toujours étiqueté comme contexte, jamais substitué à la paire appariée. Les deux sont rapportées côte à côte partout.
 
 **Non-déterminisme, déclaré.** cuDNN benchmark est actif (`deterministic: false`, BF16). Les chiffres primaires proviennent du forward harnais de l'artefact pré-enregistré ; la régénération des métriques métier (§6.3) provient d'un deuxième forward GPU indépendant des *mêmes* checkpoints. Les deux concordent à **≤ 0,01 pt** près sur toute quantité partagée (écarts de mIoU par seed ≤ 2×10⁻⁴ pt ; primaire Δ +0,170 vs +0,173, p 0,4032 vs 0,3952 — même verdict), du même ordre que le 4,1×10⁻³ pt déjà documenté dans la sanité de consolidation du programme.
 
@@ -145,7 +154,7 @@ Lecture honnête : l'endpoint primaire est **nul**. La blob loss n'améliore pas
 
 Le deuxième forward GPU indépendant des mêmes checkpoints (chemin de régénération des métriques métier, §6.3) donne Δ = +0,173 pt [−0,229 ; +0,554], p = 0,3952 — même verdict, écart ≤ 0,01 pt (non-déterminisme cuDNN/BF16 déclaré).
 
-**Contexte 13 bras du programme** (référence : contrôle du MoE, CE + Dice 80 époques — *non* apparié en budget avec G ; artefact `results/moe_v3_cs/p314/master_table.json`) :
+**Contexte 13 bras du programme** (référence : contrôle apparié en recette du bras de mélange, CE + Dice 80 époques — *non* apparié en budget avec G ; artefact `results/moe_v3_cs/p314/master_table.json`) :
 
 | # | Bras | mIoU | Δ vs contrôle | p | Holm (famille 12 paires) | Holm (famille 15 paires) |
 |---|---|---|---|---|---|---|
@@ -171,7 +180,7 @@ G se classe **7^e^ sur 13** par amplitude (le contrôle, Δ = 0, se classe 10^e^
 
 ### 6.2 IoU par classe : la couverture des objets fins achetée
 
-![F1 — Forest plot par classe, G vs B apparié](figures/F1_forest_perclass_GvsB.png)
+![F1 — Forest plot par classe, G vs B apparié](figures/F1_forest_perclass_GvsB_fr.png)
 
 *Figure 1 : Δ IoU par classe, bras G vs référence appariée B (bootstrap apparié, B = 10 000). Marqueurs pleins = Holm-significatif dans la famille 19 classes ; marqueurs creux = IC excluant 0 sans survie au Holm ; les deux critères sont tracés séparément, jamais fusionnés.*
 
@@ -203,7 +212,7 @@ Contre **B** apparié : les survivants du Holm sont exactement les classes fines
 
 ### 6.3 Métriques métier : l'intégrité piétonne payée
 
-![F2 — Le trade-off mesuré](figures/F2_tradeoff.png)
+![F2 — Le trade-off mesuré](figures/F2_tradeoff_fr.png)
 
 *Figure 2 : le trade-off, sur les deux paires. Gauche/milieu : la couverture pixel des objets fins (Boundary F1, IoU par classe) monte ; droite : le rappel d'instances piétonnes (strict, strates de taille, foule) et la précision pixel piétonne descendent. IC du bootstrap apparié par image.*
 
@@ -259,9 +268,9 @@ Critère de polyvalence pré-enregistré du programme : 36 endpoints (19 IoU par
 | **8** | **G · CE+Dice+Blob (ce papier)** | **41,9** | **13** | **7** | **−6,76** (précision péd) | **−1,05** | **+3,43** (truck IoU) | **+0,09 (0,6592 / 1,000)** | **4/1** | **13/12** | **dominé** |
 | 11 | D · CE+Kervadec EDT | 77,3 | 13 | 16 | −22,20 (précision péd) | −3,44 | +5,49 (wall IoU) | +0,52 (0,0050 / 0,075) | 17/13 | 4/3 | non dominé |
 
-Le profil de G : percentile moyen **41,9** (rang moyen 8,2), pire rang **13/13**, dernier sur 16 des 36 endpoints — mais **#1 sur 7 des 36 endpoints**, plus que tout bras sauf D (16) : un spécialiste authentique. Le dommage est concentré sur la famille piétonne (pire endpoint : précision pixel piétonne **−6,76 pt**, z = −1,05 σ inter-bras ; pire moyenne de famille : piéton −5,09 ; meilleure famille : contours +0,31). Le **prix par point de mIoU** — dommage maximal divisé par le ΔmIoU — vaut **−71,7 pt** pour G contre **−1,2 pt** pour le MoE-V3-CS : le mélange achète le même plateau sans le trou. G est **dominé au sens de Pareto** (par B, C, C⊘B, Dp⊘B, le contrôle et MoE-V3-CS). Le verdict T0 pré-enregistré (ΔmIoU significatif *et* aucun endpoint > 1 pt sous la référence *et* aucune classe dégradée > 0,5 pt) est rapporté **tel que calculé : vrai pour le mélange, et G en est l'antithèse** — un spécialiste dominé dont la spécialité (objets fins) est exactement ce que le mélange absorbe.
+Le profil de G : percentile moyen **41,9** (rang moyen 8,2), pire rang **13/13**, dernier sur 16 des 36 endpoints — mais **#1 sur 7 des 36 endpoints**, plus que tout bras sauf D (16) : un spécialiste authentique. Le dommage est concentré sur la famille piétonne (pire endpoint : précision pixel piétonne **−6,76 pt**, z = −1,05 σ inter-bras ; pire moyenne de famille : piéton −5,09 ; meilleure famille : contours +0,31). Le **prix par point de mIoU** — dommage maximal divisé par le ΔmIoU — vaut **−71,7 pt** pour G contre **−1,2 pt** pour le bras de mélange MoE-V3-CS : à gain global comparable, le mélange ne porte pas le trou. G est **dominé au sens de Pareto** (par B, C, C⊘B, Dp⊘B, le contrôle et MoE-V3-CS). Le verdict T0 pré-enregistré (ΔmIoU significatif *et* aucun endpoint > 1 pt sous la référence *et* aucune classe dégradée > 0,5 pt) est rapporté **tel que calculé : vrai pour le bras de mélange, et G en est l'antithèse** — un spécialiste dominé dont la spécialité (objets fins) est précisément celle qu'un mélange initialisé depuis ces bras met à profit (§7.2).
 
-![F3 — G dans le classement de polyvalence](figures/F3_polyvalence_G.png)
+![F3 — G dans le classement de polyvalence](figures/F3_polyvalence_G_fr.png)
 
 *Figure 3 : position du bras G dans le classement 36 endpoints × 13 bras, face au mélange MoE-V3-CS et au plateau. Pic de spécialité (#1 sur 7 endpoints) et dommage maximal (−6,76 pt) sur le même bras.*
 
@@ -274,7 +283,7 @@ Chiffres **cités** depuis le programme BRATS publié (deuxième dataset, deuxi�
 | blob **seul** vs baseline nnU-Net | **−0,00376 Dice** (CV 5 folds ; 0/5 folds gagnées ; dernier des 4 bras experts) | BRATS `papers/paper3/versions/v3/NOTE_DECISION_V3.md` l.46 + `tables/v3_vs_consensus.md` l.38 |
 | blob comme **expert 3 du MoE-V3 gagnant** | gate V3 : **+0,00566 Dice** vs sa propre baseline, **1^er^ des 29 bras** (5/5 folds) | même note l.52, l.115 ; [DOI 10.5281/zenodo.22903668] |
 
-Deux programmes indépendants — datasets, architectures, métriques et régimes de probabilités différents — convergent vers le même verdict : **nul-ou-négatif seul, premier du plateau comme expert initialisé d'un mélange**. Cette convergence est l'argument de généralité de ce papier.
+Deux programmes indépendants — datasets, architectures, métriques et régimes de probabilités différents — convergent vers le même verdict : **nul-ou-négatif seul, et mis à profit comme expert initialisé d'un mélange** — premier du plateau BRATS comme expert, seul bras du plateau Cityscapes à cocher le critère T0 une fois intégré au mélange. Cette convergence est l'argument de généralité de ce papier.
 
 ---
 
@@ -286,18 +295,18 @@ Les mesures soutiennent une lecture cohérente, proposée comme hypothèse ancr�
 
 ### 7.2 Là où il paie : expert initialisé d'un mélange
 
-Le mélange Cityscapes compagnon **MoE-V3-CS** initialise quatre experts depuis les bras entraînés indépendamment B, D, Dp, **G** et entraîne un gate top-2 sur patchs 3×3 pendant 80 époques (contrôle : CE+Dice 80 époques, initialisé B). Mesuré dans l'étude compagne (cité ici, artefacts de la même chaîne de programme) : ΔmIoU **+0,45 pt [+0,11 ; +0,82], p = 0,0066** vs contrôle ; rappel des petites instances **T1 +0,80 (significatif)** ; traffic light **non dégradé** (les bras boundary/distmap y perdent 2,3 à 2,8) ; dommage maximal **−0,53 pt** ; fragments 488/image — *sous* les 519 du contrôle. Autrement dit, le gate route la spécialité objets fins de G vers les patchs où elle gagne, et s'écarte de G là où son comportement faiseur-de-trous coûterait — la spécialité est absorbée, les dégâts ne sont pas hérités. Le MoE-V3 BRATS faisait la même chose avec le même expert (1^er^ des 29 bras, 5/5 folds). **La blob loss est un bon expert et un mauvais généraliste** — et l'entraînement en mélange d'experts est le mécanisme qui convertit l'un en l'autre.
+Le bras de mélange du plateau Cityscapes, **MoE-V3-CS**, initialise quatre experts depuis les bras entraînés indépendamment B, D, Dp, **G** et entraîne un gate top-2 sur patchs 3×3 pendant 80 époques (contrôle : CE+Dice 80 époques, initialisé B). Lu dans les artefacts du plateau (table maîtresse P3.14, polyvalence P3.17 — contexte, §6.1 et §6.5), ce bras donne : ΔmIoU **+0,45 pt [+0,11 ; +0,82], p = 0,0066** vs son contrôle ; rappel des petites instances **T1 +0,80** ; traffic light **non dégradé** (−0,08, là où les bras boundary/distmap perdent 2,3 à 2,8) ; dommage maximal **−0,53 pt** ; fragments 488/image — *sous* les 519 du contrôle. Le profil est celui d'un bras qui met à profit la spécialité objets fins de G sans porter son mode d'échec faiseur-de-trous ; le mécanisme — moyenne d'experts bien initialisés plutôt que sélection par le gate — est, lui, publié sur BRATS avec le même expert : **1^er^ des 29 bras, 5/5 folds** [DOI 10.5281/zenodo.22903668]. **La blob loss est un bon expert et un mauvais généraliste** — et le mélange d'experts initialisé est le mécanisme qui, sur les deux datasets, convertit l'un en l'autre.
 
 ### 7.3 Retours pratiques
 
 * **Ne livrez pas le terme blob seul** en segmentation sémantique softmax exclusive à budget fixe : attendez-vous à une mIoU nulle, une meilleure IoU pixel des objets fins, et une intégrité dégradée des instances piétonnes. Si la *détection* de piétons alimente un planificateur aval, les −4,3 points de rappel strict sont disqualifiants à eux seuls.
-* **Considérez-le comme candidat expert** pour un mélange par patchs : c'est le seul bras des 13 à améliorer traffic light vs le contrôle, et sa spécialité est exactement ce que le mélange mesuré absorbe.
+* **Considérez-le comme candidat expert** pour un mélange par patchs : c'est le seul bras des 13 à améliorer traffic light vs le contrôle, et sa spécialité (objets fins) est précisément celle que le mélange d'experts initialisé depuis ces bras met à profit sur les deux datasets (§7.2).
 * **Si vous le gardez, appariez-le à un filtre CC.** Le diagnostic de fragmentation (+318,8 composantes/image) dit qu'un veto de consensus à composantes connexes post-hoc — le C⊘B neutre en mIoU de [Cassez 2026b], −18,7 % de fragments — vise précisément le mode d'échec de ce bras. (Rapporté comme implication de design ; le veto de style G⊘ sur ce bras n'est pas mesuré dans ce papier.)
 * **Le coût d'ingénierie est résolu** : les paquetages d'instances pré-calculés mettent le terme à +1–2 %/époque (contre +870 s/époque en naïf), testés en parité, avec le piège d'alignement du flip documenté (§4).
 
 ### 7.4 Relation à Kofler et al.
 
-Rien ici ne contredit le résultat médical publié : sous la recette region-based sigmoid, le terme améliorait les métriques de petites structures qu'il vise [Kofler 2023]. Ce que ce papier ajoute est la **frontière de régime** : transposé *exactement* (même algèbre, même β = 0,5, même moyenne à deux niveaux) en Cityscapes pleine résolution softmax exclusive, la promesse du terme s'inverse en le trade-off ci-dessus. Les transferts de termes de loss entre régimes de probabilités doivent être mesurés, pas supposés — sur nos deux datasets le verdict *seul* était nul tandis que le verdict *expert* était premier-du-plateau.
+Rien ici ne contredit le résultat médical publié : sous la recette region-based sigmoid, le terme améliorait les métriques de petites structures qu'il vise [Kofler 2023]. Ce que ce papier ajoute est la **frontière de régime** : transposé *exactement* (même algèbre, même β = 0,5, même moyenne à deux niveaux) en Cityscapes pleine résolution softmax exclusive, la promesse du terme s'inverse en le trade-off ci-dessus. Les transferts de termes de loss entre régimes de probabilités doivent être mesurés, pas supposés — sur nos deux datasets le verdict *seul* était nul tandis que le verdict *expert* était premier-du-plateau sur BRATS et seul bras T0 du plateau Cityscapes une fois intégré au mélange.
 
 ---
 
@@ -318,9 +327,15 @@ Rien ici ne contredit le résultat médical publié : sous la recette region-bas
 
 ## 9. Conclusion
 
-Donnez à chaque instance GT le même poids, quel que soit son nombre de pixels, et Cityscapes pleine résolution en softmax exclusif répond : **pas rentable seul**. L'endpoint primaire pré-enregistré est nul (ΔmIoU +0,170 pt [−0,233 ; +0,551], p = 0,4032, G vs B apparié, 160 époques, 3 seeds). Le terme achète exactement ce qu'il promet — la couverture pixel des objets fins (traffic light +0,98, pole +0,58, bicycle +0,57, Holm-significatifs ; Boundary F1 +0,63) — et le paie en intégrité des instances piétonnes (rappel strict −4,34, plus petit tercile −5,65, foule −5,74) et en topologie des masques (composantes ×1,52, 16 classes sur 19 en hausse vs B apparié et 19 sur 19 vs contrôle, masques piétons ×2,2), ce qui en fait un **spécialiste dominé au sens de Pareto** sur le critère de polyvalence à 36 endpoints du programme. Le même terme, comme expert initialisé d'un mélange par patchs, est **premier des 29 bras sur BRATS** et fait partie du **seul bras non dominé et significativement positif sur Cityscapes** (MoE-V3-CS, ΔmIoU +0,45, p = 0,0066, dommage maximal −0,53). Le poids égal par instance ne paie pas seul — il paie comme expert.
+Donnez à chaque instance GT le même poids, quel que soit son nombre de pixels, et Cityscapes pleine résolution en softmax exclusif répond : **pas rentable seul**. L'endpoint primaire pré-enregistré est nul (ΔmIoU +0,170 pt [−0,233 ; +0,551], p = 0,4032, G vs B apparié, 160 époques, 3 seeds). Le terme achète exactement ce qu'il promet — la couverture pixel des objets fins (traffic light +0,98, pole +0,58, bicycle +0,57, Holm-significatifs ; Boundary F1 +0,63) — et le paie en intégrité des instances piétonnes (rappel strict −4,34, plus petit tercile −5,65, foule −5,74) et en topologie des masques (composantes ×1,52, 16 classes sur 19 en hausse vs B apparié et 19 sur 19 vs contrôle, masques piétons ×2,2), ce qui en fait un **spécialiste dominé au sens de Pareto** sur le critère de polyvalence à 36 endpoints du programme. Le même terme, comme expert initialisé d'un mélange par patchs, est **premier des 29 bras sur BRATS** et, sur le plateau Cityscapes, entre dans le **seul bras qui coche le critère T0** (MoE-V3-CS, ΔmIoU +0,45, p = 0,0066, dommage maximal −0,53 ; tables P3.14/P3.17). Le poids égal par instance ne paie pas seul — il paie comme expert.
 
 Code, configs, pointeurs d'artefacts par bras, tables, figures et scripts de régénération : **github.com/guillaume-cassez/cityscape-blob-loss-kofler**. Compagnons du programme : distmap Cityscapes [DOI 10.5281/zenodo.21006236], ablation boundary Cityscapes [DOI 10.5281/zenodo.21006393], MoE-V3 BRATS [DOI 10.5281/zenodo.22903668], boundary BRATS [DOI 10.5281/zenodo.22906447], consensus BRATS [DOI 10.5281/zenodo.22904810], distmap BRATS [DOI 10.5281/zenodo.20110976].
+
+---
+
+## Contributions des auteurs
+
+**Guillaume Cassez** (auteur principal) : conception de l'étude, entraînement des modèles, évaluations et analyses, rédaction du manuscrit. **Stanislas Larnier** : formulation des questions de recherche, conseils méthodologiques, relectures attentives des versions successives du papier. Les deux auteurs ont approuvé la version finale et l'ordre des auteurs.
 
 ---
 

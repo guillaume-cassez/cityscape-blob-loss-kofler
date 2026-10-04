@@ -3,10 +3,9 @@
 **Un auxiliaire blob loss en pleine résolution Cityscapes achète l'IoU des objets fins avec le
 rappel piéton, et ne paie que comme expert d'un mélange d'experts.**
 
-Guillaume Cassez — chercheur indépendant · ORCID [0009-0007-0987-3931](https://orcid.org/0009-0007-0987-3931) ·
-[guillaume-cassez.fr](https://guillaume-cassez.fr/voiture-autonome/)
+**Guillaume Cassez** · **Stanislas Larnier** — recherche indépendante · ORCID [0009-0007-0987-3931](https://orcid.org/0009-0007-0987-3931) (G.C.) · [HAL stanislas-larnier](https://cv.hal.science/stanislas-larnier) (S.L.) · [guillaume-cassez.fr](https://guillaume-cassez.fr/voiture-autonome/)
 
-Preprint, CC-BY-4.0. À lire : [`paper_fr.pdf`](paper_fr.pdf) (FR, 15 p.) ou
+Preprint, CC-BY-4.0. À lire : [`paper_fr.pdf`](paper_fr.pdf) (FR, 16 p.) ou
 [`paper.pdf`](paper.pdf) (EN, 15 p.).
 
 ---
@@ -94,27 +93,29 @@ Cityscapes absorbe la spécialité objets fins de G (T1 +0,80) sans hériter de 
 > probability regime: on BRATS 2023 (region-based sigmoid, MedNeXt, nnU-Net recipe, 5-fold CV, n =
 > 1 196), the blob arm alone scored **−0.00376 Dice** vs baseline, yet as **expert 3 of the
 > winning MoE-V3** it contributed **+0.00566 Dice, first of 29 arms** [DOI
-> 10.5281/zenodo.22903668]. The Cityscapes companion mixture **MoE-V3-CS** (four experts
-> initialised from B, D, Dp, G; top-2 patch-wise gate) tells the same story: it absorbs G's
-> thin-object speciality — small-instance recall T1 +0.80 (significant), traffic light not
-> degraded — without inheriting its damage (maximal damage −0.53 pt; ΔmIoU +0.45 pt, p = 0.0066 vs
-> its paired control). **Contributions.** (1) A pre-registered **null primary** for
-> equal-weight-per-instance auxiliary loss in full-resolution exclusive-softmax segmentation,
-> reported as such. (2) A complete **trade-off diagnostic**: per-class IoU, seven business-metric
-> families on pedestrian instances, and a **new per-class connected-component decomposition**
-> (933.9 vs 615.1 components/image) that contradicts the initially hypothesised compaction
-> mechanism — the paper reports what the tables show. (3) An **exact port** of Kofler's algebra
-> (eq. 1) to the exclusive-softmax regime with precomputed instance packs: +1–2 % epoch time
-> against +870 s/epoch for the naive path, naive↔precomputed parity locked by unit tests, and the
-> horizontal-flip alignment pitfall documented. (4) Evidence, on two datasets and two probability
-> regimes, that the term **pays as an initialised expert of a mixture** while null-or-harmful
-> alone. (5) Public release of code, configs, tables, figures and regeneration scripts. ---
+> 10.5281/zenodo.22903668]. On the Cityscapes program plateau, the expert-mixture arm initialised
+> from these specialists (MoE-V3-CS, master table P3.14) points the same way, as context: ΔmIoU
+> +0.45 pt [+0.11 ; +0.82], p = 0.0066 vs its recipe-paired control, maximal damage −0.53 pt,
+> small-instance recall T1 +0.80, traffic light not degraded — the profile of an arm that puts G's
+> thin-object speciality to use without carrying its damage. The dedicated analysis of that
+> mixture arm (routing diagnostics, multiplicity families) is not the subject of this paper.
+> **Contributions.** (1) A pre-registered **null primary** for equal-weight-per-instance auxiliary
+> loss in full-resolution exclusive-softmax segmentation, reported as such. (2) A complete
+> **trade-off diagnostic**: per-class IoU, seven business-metric families on pedestrian instances,
+> and a **new per-class connected-component decomposition** (933.9 vs 615.1 components/image) that
+> contradicts the initially hypothesised compaction mechanism — the paper reports what the tables
+> show. (3) An **exact port** of Kofler's algebra (eq. 1) to the exclusive-softmax regime with
+> precomputed instance packs: +1–2 % epoch time against +870 s/epoch for the naive path,
+> naive↔precomputed parity locked by unit tests, and the horizontal-flip alignment pitfall
+> documented. (4) Evidence, on two datasets and two probability regimes, that the term **pays as
+> an initialised expert of a mixture** while null-or-harmful alone. (5) Public release of code,
+> configs, tables, figures and regeneration scripts. ---
 
 ## Contenu du dépôt
 
 | chemin | contenu |
 |---|---|
-| `paper_fr.md` / `paper_fr.pdf` | manuscrit français (15 p.) |
+| `paper_fr.md` / `paper_fr.pdf` | manuscrit français (16 p.) |
 | `paper.md` / `paper.pdf` | manuscrit anglais (15 p.) |
 | `build.sh` + `header.tex` | la recette exacte qui reconstruit les deux PDF (pandoc → XeLaTeX, letter, marges 1,7 cm, Liberation Serif) |
 | `tables/` | T1-T6 (md + csv) et `paper4_tables.json`, la table de consolidation |
@@ -169,5 +170,4 @@ restent soumises à leur propre licence.
 
 ## Citer
 
-Voir [`CITATION.cff`](CITATION.cff). Auteur : Guillaume Cassez, chercheur indépendant
-(ORCID [0009-0007-0987-3931](https://orcid.org/0009-0007-0987-3931)).
+Voir [`CITATION.cff`](CITATION.cff). Auteurs : Guillaume Cassez, Stanislas Larnier, chercheurs indépendants (ORCID [0009-0007-0987-3931](https://orcid.org/0009-0007-0987-3931) pour Guillaume Cassez).
